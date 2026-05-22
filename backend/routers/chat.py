@@ -5,44 +5,65 @@ from ai.knowledge_base import load_knowledge_base
 
 router = APIRouter()
 
+
 class ChatRequest(BaseModel):
     message: str
     location: str = "India"
 
+
+# Load DB once
+db = load_knowledge_base()
+
+# Retriever
+retriever = db.as_retriever(
+    search_kwargs={"k": 2}
+)
+
+# Better model
+llm = OllamaLLM(
+    model="phi3",
+    temperature=0,
+    num_predict=120
+)
+
+
 @router.post("/chat")
 async def chat(req: ChatRequest):
     try:
-        db = load_knowledge_base()
 
-        docs = db.similarity_search(req.message, k=3)
+        docs = retriever.invoke(req.message)
 
-        context = "\n".join([doc.page_content for doc in docs])
+        context = "\n".join([
+            doc.page_content for doc in docs
+        ])
 
         prompt = f"""
-You are DriveLegal, an AI assistant for traffic laws worldwide.
+You are DriveLegal, an AI traffic law assistant.
 
-Always include:
-- exact law section
-- fine amount
-- repeat offence details
+Give SHORT and DIRECT answers.
 
-If unsure, say verify with official transport authority.
+STRICT RULES:
+- Do NOT explain the question.
+- Do NOT repeat context.
+- Keep answer under 4 lines.
+- ALWAYS mention:
+  • exact law section
+  • fine amount
+  • repeat offence details
 
-Context:
+Location: {req.location}
+
+Legal Context:
 {context}
 
-Question:
+User Question:
 {req.message}
 """
-
-        llm = OllamaLLM(
-            model="llama3"
-        )
 
         response = llm.invoke(prompt)
 
         return {
-            "answer": response,
+            "answer": response.strip(),
             "location": req.location,
             "status": "ok"
         }
