@@ -7,21 +7,26 @@ const STATES = [
 ]
 
 export default function LocationBar({ onLocationChange }) {
-  const { setLocation } = useChatStore()
+  const { setLocation: setGlobalLocation } = useChatStore()
   const [location, setLocation]   = useState('National')
   const [detecting, setDetecting] = useState(false)
   const [isOnline, setIsOnline]   = useState(navigator.onLine)
 
   // Track online/offline status
   useEffect(() => {
-    const goOnline  = () => setIsOnline(true)
-    const goOffline = () => setIsOnline(false)
-    window.addEventListener('online',  goOnline)
-    window.addEventListener('offline', goOffline)
-    return () => {
-      window.removeEventListener('online',  goOnline)
-      window.removeEventListener('offline', goOffline)
-    }
+  const updateStatus = () => {
+    setIsOnline(navigator.onLine)
+  }
+
+  window.addEventListener('online', updateStatus)
+  window.addEventListener('offline', updateStatus)
+
+  updateStatus()
+
+  return () => {
+    window.removeEventListener('online', updateStatus)
+    window.removeEventListener('offline', updateStatus)
+  }
   }, [])
 
   // Auto-detect on first load
@@ -44,7 +49,7 @@ export default function LocationBar({ onLocationChange }) {
           const matched = STATES.find(s =>
             state.toLowerCase().includes(s.toLowerCase())
           ) || 'National'
-          setLocation(matched)
+          setGlobalLocation(matched)
           setLocation(matched)
           onLocationChange(matched)
         } catch { setDetecting(false) }
@@ -55,7 +60,7 @@ export default function LocationBar({ onLocationChange }) {
   }
 
   const handleChange = (e) => {
-    setLocation(e.target.value)
+    setGlobalLocation(e.target.value)
     setLocation(e.target.value)
     onLocationChange(e.target.value)
     // Save to localStorage for offline use
