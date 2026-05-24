@@ -1,13 +1,10 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
-from ai.knowledge_base import load_knowledge_base
 import hashlib
 
 router = APIRouter()
 
-# Load DB only ONCE (important for speed)
-db = load_knowledge_base()
 
 # Load model only ONCE (huge speed improvement)
 llm = ChatOpenAI(
@@ -57,11 +54,8 @@ async def chat(req: ChatRequest):
                 "cached": True
             }
 
-        # Retrieve only top 1 result for speed
-        docs = db.similarity_search(
-            req.message,
-            k=1
-        )
+        
+        
 
         # Combine context
         context = "\n".join([
