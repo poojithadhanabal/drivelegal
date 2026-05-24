@@ -53,3 +53,7 @@ State: Tamil Nadu
 Rule: 105-A
 Penalty: ₹40 to ₹100
 
+Section 181 Motor Vehicles Act:
+Driving without licence:
+Fine Rs.5000
+Repeat offence may result in additional penalties or court action.
