@@ -1,0 +1,100 @@
+[
+  {
+    "id": "NO_HELMET",
+    "offence": "No Helmet",
+    "section": "194D",
+    "act": "Motor Vehicles Act",
+    "fine": {
+      "first_offence": "₹1000",
+      "repeat_offence": "Licence disqualification for 3 months"
+    },
+    "description": "Riding without helmet on two-wheelers.",
+    "vehicle_type": "Two Wheeler",
+    "state": "India",
+    "keywords": [
+      "helmet",
+      "no helmet",
+      "without helmet",
+      "bike helmet"
+    ],
+    "source": {
+      "name": "Motor Vehicles Amendment Act",
+      "year": "2019",
+      "verified": true
+    }
+  },
+
+  {
+    "id": "DRUNK_DRIVING",
+    "offence": "Drunk Driving",
+    "section": "185",
+    "act": "Motor Vehicles Act",
+    "fine": {
+      "first_offence": "₹10000",
+      "repeat_offence": "₹15000 + imprisonment"
+    },
+    "description": "Driving under alcohol influence.",
+    "vehicle_type": "All Vehicles",
+    "state": "India",
+    "keywords": [
+      "drunk",
+      "alcohol",
+      "drink and drive",
+      "drunk driving"
+    ],
+    "source": {
+      "name": "Motor Vehicles Amendment Act",
+      "year": "2019",
+      "verified": true
+    }
+  },
+
+  {
+    "id": "MOBILE_PHONE",
+    "offence": "Using Mobile While Driving",
+    "section": "184",
+    "act": "Motor Vehicles Act",
+    "fine": {
+      "first_offence": "₹5000",
+      "repeat_offence": "₹10000"
+    },
+    "description": "Using mobile phone while driving.",
+    "vehicle_type": "All Vehicles",
+    "state": "India",
+    "keywords": [
+      "mobile",
+      "phone",
+      "calling while driving",
+      "texting while driving"
+    ],
+    "source": {
+      "name": "Motor Vehicles Amendment Act",
+      "year": "2019",
+      "verified": true
+    }
+  },
+
+  {
+    "id": "SEATBELT",
+    "offence": "No Seatbelt",
+    "section": "194B",
+    "act": "Motor Vehicles Act",
+    "fine": {
+      "first_offence": "₹1000",
+      "repeat_offence": "Double fine possible"
+    },
+    "description": "Not wearing seatbelt.",
+    "vehicle_type": "Four Wheeler",
+    "state": "India",
+    "keywords": [
+      "seatbelt",
+      "belt",
+      "no seatbelt"
+    ],
+    "source": {
+      "name": "Motor Vehicles Amendment Act",
+      "year": "2019",
+      "verified": true
+    }
+  }
+]

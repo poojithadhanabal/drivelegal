@@ -1,26 +1,16 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from langchain_groq import ChatGroq
-import os
+import json
 import hashlib
-from dotenv import load_dotenv
-
-load_dotenv()
 
 router = APIRouter()
-
-# Load model once
-llm = ChatGroq(
-    groq_api_key=os.getenv("GROQ_API_KEY"),
-    model_name="llama3-8b-8192"
-)
 
 # Cache
 _cache = {}
 
-# Load legal data once
-with open("data/legal_data.txt", "r", encoding="utf-8") as f:
-    LEGAL_DATA = f.read()
+# Load JSON database
+with open("data/legal_database/central_laws.json", "r", encoding="utf-8") as f:
+    LEGAL_DATA = json.load(f)
 
 # Unsupported regions
 unsupported_regions = [
@@ -36,78 +26,39 @@ class ChatRequest(BaseModel):
     location: str = "India"
 
 
-def get_relevant_context(message: str):
+def find_matching_law(message: str):
 
     msg = message.lower()
 
-    if "helmet" in msg:
-        return extract_section("NO_HELMET")
+    for law in LEGAL_DATA:
 
-    elif "drunk" in msg or "alcohol" in msg:
-        return extract_section("DRUNK_DRIVING")
+        for keyword in law["keywords"]:
 
-    elif "mobile" in msg or "phone" in msg:
-        return extract_section("MOBILE_PHONE")
-
-    elif "insurance" in msg:
-        return extract_section("NO_INSURANCE")
-
-    elif "licence" in msg or "license" in msg:
-        return extract_section("NO_LICENSE")
-
-    elif "red light" in msg or "signal" in msg:
-        return extract_section("RED_LIGHT")
-
-    elif "seatbelt" in msg or "seat belt" in msg:
-        return extract_section("SEATBELT")
+            if keyword.lower() in msg:
+                return law
 
     return None
 
 
-def extract_section(tag):
-
-    start = LEGAL_DATA.find(f"[{tag}]")
-
-    if start == -1:
-        return "❌ Legal section not found."
-
-    end = LEGAL_DATA.find("[", start + 1)
-
-    if end == -1:
-        section = LEGAL_DATA[start:]
-    else:
-        section = LEGAL_DATA[start:end]
-
-    lines = section.strip().split("\n")
-
-    title = lines[0] \
-        .replace("[", "") \
-        .replace("]", "") \
-        .replace("_", " ") \
-        .title()
-
-    data = {}
-
-    for line in lines[1:]:
-
-        if ":" in line:
-
-            key, value = line.split(":", 1)
-
-            data[key.strip()] = value.strip()
+def format_response(law):
 
     return f"""
-🚦 {title}
+🚦 {law['offence']}
 
-📘 Section: {data.get("Section", "N/A")}
+📘 Section: {law['section']}
 
-💰 Fine: {data.get("Fine", "N/A")}
-
-🔁 Repeat Offence:
-{data.get("Repeat", "N/A")}
+💰 Fine:
+• First Offence: {law['fine']['first_offence']}
+• Repeat Offence: {law['fine']['repeat_offence']}
 
 📝 Description:
-{data.get("Description", "N/A")}
+{law['description']}
+
+⚖️ Act:
+{law['act']}
+
+✅ Verified Source:
+{law['source']['name']} ({law['source']['year']})
 """
 
 
@@ -120,7 +71,7 @@ async def chat(req: ChatRequest):
         if any(region.lower() in req.message.lower() for region in unsupported_regions):
 
             return {
-                "answer": "⚠️ No verified legal data available for this region.",
+                "answer": "⚠️ No verified legal data available for this region yet.",
                 "location": req.location,
                 "status": "ok"
             }
@@ -130,7 +81,7 @@ async def chat(req: ChatRequest):
             f"{req.message.lower().strip()}-{req.location}".encode()
         ).hexdigest()
 
-        # Return cached response
+        # Cached response
         if cache_key in _cache:
 
             return {
@@ -138,41 +89,24 @@ async def chat(req: ChatRequest):
                 "cached": True
             }
 
-        # Get legal context
-        context = get_relevant_context(req.message)
+        # Find law
+        matched_law = find_matching_law(req.message)
 
-        # If found locally → return instantly
-        if context:
+        if matched_law:
+            answer = format_response(matched_law)
 
-            final_response = {
-                "answer": context,
-                "location": req.location,
-                "status": "ok"
-            }
-
-            _cache[cache_key] = final_response
-
-            return final_response
-
-        # Fallback AI response
-        prompt = f"""
-You are DriveLegal AI.
-
-Answer briefly and clearly about Indian traffic laws.
-
-Question:
-{req.message}
-"""
-
-        ai_response = llm.invoke(prompt)
+        else:
+            answer = (
+                "❌ Sorry, no verified legal information found for this query."
+            )
 
         final_response = {
-            "answer": ai_response.content,
+            "answer": answer,
             "location": req.location,
             "status": "ok"
         }
 
-        # Cache response
+        # Save cache
         _cache[cache_key] = final_response
 
         return final_response
@@ -180,6 +114,6 @@ Question:
     except Exception as e:
 
         return {
-            "answer": f"⚠️ Error: {str(e)}",
+            "answer": f"Error: {str(e)}",
             "status": "error"
         }
