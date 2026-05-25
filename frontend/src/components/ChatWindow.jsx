@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 
-const API = 'http://localhost:8000/api'
+const API = 'https://drivelegal-backend.onrender.com/api'
 
 export default function ChatWindow({ location }) {
 
