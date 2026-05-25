@@ -1,59 +1,41 @@
-Violation: Drunk Driving
+[NO_HELMET]
+Section: 194D
+Fine: ₹1000
+Repeat: Licence disqualification for 3 months
+Description: Riding without helmet on two-wheelers.
+
+[DRUNK_DRIVING]
 Section: 185
-Description: Alcohol exceeding 30 mg per 100 ml blood
-Source: Motor Vehicles Amendment Act 1994
+Fine: ₹10000 first offence
+Repeat: ₹15000 + imprisonment
+Description: Driving under alcohol influence.
 
-Violation: Helmet Rule
-Section: 129
-Description: Protective headgear must conform to BIS standards
-Source: Motor Vehicles Amendment Act 1994
+[MOBILE_PHONE]
+Section: 184
+Fine: ₹5000 first offence
+Repeat: ₹10000 repeat offence
+Description: Using mobile while driving.
 
-Violation: Overloading
-Section: 194
-Description: Fine for excess vehicle load
-Source: Motor Vehicles Amendment Act 1994
+[NO_INSURANCE]
+Section: 196
+Fine: ₹2000 first offence
+Repeat: ₹4000 repeat offence
+Description: Driving without insurance.
 
-Violation: Vehicle Without Registration
-Section: 192
-Description: Using vehicle without registration
-Source: Motor Vehicles Amendment Act 1994
+[NO_LICENSE]
+Section: 181
+Fine: ₹5000
+Repeat: Possible stricter penalties
+Description: Driving without valid licence.
 
-Violation: Vehicle Without Permit
-Section: 192A
-Description: Using transport vehicle without permit
-Source: Motor Vehicles Amendment Act 1994
+[RED_LIGHT]
+Section: 194B
+Fine: ₹5000
+Repeat: ₹10000 repeat offence
+Description: Jumping traffic signal.
 
-Violation: Smoking While Driving
-State: Tamil Nadu
-Rule: 37(ii)
-Description: Driver shall not smoke while on duty
-
-Violation: Driver Under Influence
-State: Tamil Nadu
-Rule: 79(ix)
-Description: Conductor shall not be under influence of drink/drugs
-
-Violation: Excess Passengers
-State: Tamil Nadu
-Rule: 79(i)
-Description: Cannot carry passengers above seating capacity
-
-Violation: Pollution Control Violation
-State: Tamil Nadu
-Rule: 116-A
-Description: Vehicles must satisfy pollution standards
-
-Violation: Delay in Vehicle Registration
-State: Tamil Nadu
-Rule: 98
-Penalty: ₹40 to ₹100 depending on delay
-
-Violation: Failure to Report Transfer
-State: Tamil Nadu
-Rule: 105-A
-Penalty: ₹40 to ₹100
-
-Section 181 Motor Vehicles Act:
-Driving without licence:
-Fine Rs.5000
-Repeat offence may result in additional penalties or court action.
+[SEATBELT]
+Section: 194B
+Fine: ₹1000
+Repeat: Double fine possible
+Description: Not wearing seatbelt.

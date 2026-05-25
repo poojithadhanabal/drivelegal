@@ -6,3 +6,4 @@ openai
 python-dotenv
 pydantic
 requests
+langchain-google-genai
