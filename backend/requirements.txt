@@ -7,3 +7,4 @@ python-dotenv
 pydantic
 requests
 langchain-google-genai
+langchain-groq
