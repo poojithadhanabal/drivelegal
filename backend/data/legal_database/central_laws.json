@@ -1,100 +1,378 @@
 [
   {
+    "act": "Motor Vehicles Act, 1988",
+    "blood_alcohol_limit": "30 mg per 100 ml blood",
+    "court_required": true,
+    "description": "Driving a motor vehicle under the influence of alcohol or drugs beyond legal limit.",
+    "documents_required": [
+      "Driving Licence",
+      "Vehicle Registration"
+    ],
+    "fine": {
+      "first_offence": "₹10000",
+      "repeat_offence": "₹15000"
+    },
+    "id": "DRUNK_DRIVING",
+    "imprisonment": {
+      "first_offence": "Up to 6 months",
+      "repeat_offence": "Up to 2 years"
+    },
+    "keywords": [
+      "drunk driving",
+      "drink and drive",
+      "alcohol",
+      "drugs",
+      "DUI"
+    ],
+    "licence_suspension": "Possible",
+    "offence": "Drunk Driving",
+    "safety_risk": "High accident and fatality risk",
+    "section": "185",
+    "severity": "high",
+    "source": {
+      "name": "Motor Vehicles Act, 1988 - Section 185",
+      "type": "Government Act",
+      "url": "https://morth.nic.in/",
+      "verified_on": "2026-05-26"
+    },
+    "state": "Central",
+    "vehicle_impound": false,
+    "vehicle_type": "All Motor Vehicles",
+    "verified": true
+  },
+  {
     "id": "NO_HELMET",
-    "offence": "No Helmet",
+
+    "offence": "Riding Without Helmet",
+
     "section": "194D",
-    "act": "Motor Vehicles Act",
+
+    "related_section": "129",
+
+    "act": "Motor Vehicles Act, 1988",
+
+    "state": "Central",
+
     "fine": {
       "first_offence": "₹1000",
-      "repeat_offence": "Licence disqualification for 3 months"
+      "repeat_offence": "Possible stricter enforcement"
     },
-    "description": "Riding without helmet on two-wheelers.",
-    "vehicle_type": "Two Wheeler",
-    "state": "India",
+
+    "imprisonment": "None specified",
+
+    "licence_suspension": "Disqualification for 3 months",
+
+    "court_required": false,
+
+    "vehicle_impound": false,
+
+    "severity": "medium",
+
+    "vehicle_type": "Motorcycles and Two-Wheelers",
+
+    "helmet_requirement": {
+      "mandatory": true,
+      "minimum_age": "Above 4 years",
+      "standard": "Protective headgear prescribed by Central Government"
+    },
+
+    "exceptions": [
+      "Sikh riders wearing turban"
+    ],
+
+    "description": "Driving or riding a motorcycle without wearing protective headgear.",
+
     "keywords": [
       "helmet",
       "no helmet",
-      "without helmet",
-      "bike helmet"
+      "protective headgear",
+      "two wheeler helmet"
     ],
+
+    "documents_required": [
+      "Driving Licence",
+      "Vehicle Registration"
+    ],
+
+    "safety_risk": "High risk of head injury during accidents",
+
+    "verified": true,
+
     "source": {
-      "name": "Motor Vehicles Amendment Act",
-      "year": "2019",
-      "verified": true
+      "name": "Motor Vehicles Act, 1988 - Sections 129 and 194D",
+      "type": "Government Act",
+      "url": "https://morth.nic.in/",
+      "verified_on": "2026-05-26"
     }
   },
-
   {
-    "id": "DRUNK_DRIVING",
-    "offence": "Drunk Driving",
-    "section": "185",
-    "act": "Motor Vehicles Act",
-    "fine": {
-      "first_offence": "₹10000",
-      "repeat_offence": "₹15000 + imprisonment"
-    },
-    "description": "Driving under alcohol influence.",
-    "vehicle_type": "All Vehicles",
-    "state": "India",
-    "keywords": [
-      "drunk",
-      "alcohol",
-      "drink and drive",
-      "drunk driving"
-    ],
-    "source": {
-      "name": "Motor Vehicles Amendment Act",
-      "year": "2019",
-      "verified": true
-    }
+  "id": "NO_SEATBELT",
+
+  "offence": "Driving Without Seatbelt",
+
+  "section": "194B",
+
+  "act": "Motor Vehicles Act, 1988",
+
+  "state": "Central",
+
+  "fine": {
+    "first_offence": "₹1000",
+    "repeat_offence": "Possible stricter enforcement"
   },
 
-  {
-    "id": "MOBILE_PHONE",
-    "offence": "Using Mobile While Driving",
-    "section": "184",
-    "act": "Motor Vehicles Act",
-    "fine": {
-      "first_offence": "₹5000",
-      "repeat_offence": "₹10000"
-    },
-    "description": "Using mobile phone while driving.",
-    "vehicle_type": "All Vehicles",
-    "state": "India",
-    "keywords": [
-      "mobile",
-      "phone",
-      "calling while driving",
-      "texting while driving"
-    ],
-    "source": {
-      "name": "Motor Vehicles Amendment Act",
-      "year": "2019",
-      "verified": true
-    }
+  "imprisonment": "None specified",
+
+  "licence_suspension": "Not specified",
+
+  "court_required": false,
+
+  "vehicle_impound": false,
+
+  "severity": "medium",
+
+  "vehicle_type": "Motor Vehicles",
+
+  "seatbelt_requirement": {
+    "mandatory": true,
+    "includes_passengers": true,
+    "child_restraint_required": true,
+    "child_age_limit": "Below 14 years"
   },
 
-  {
-    "id": "SEATBELT",
-    "offence": "No Seatbelt",
-    "section": "194B",
-    "act": "Motor Vehicles Act",
-    "fine": {
-      "first_offence": "₹1000",
-      "repeat_offence": "Double fine possible"
-    },
-    "description": "Not wearing seatbelt.",
-    "vehicle_type": "Four Wheeler",
-    "state": "India",
-    "keywords": [
-      "seatbelt",
-      "belt",
-      "no seatbelt"
-    ],
-    "source": {
-      "name": "Motor Vehicles Amendment Act",
-      "year": "2019",
-      "verified": true
-    }
+  "exceptions": [
+    "State Government may exempt specific transport vehicle classes"
+  ],
+
+  "description": "Driving or travelling in a motor vehicle without wearing a safety belt.",
+
+  "keywords": [
+    "seatbelt",
+    "safety belt",
+    "child restraint",
+    "no seatbelt"
+  ],
+
+  "documents_required": [
+    "Driving Licence",
+    "Vehicle Registration"
+  ],
+
+  "safety_risk": "High risk of injury during collisions",
+
+  "verified": true,
+
+  "source": {
+    "name": "Motor Vehicles Act, 1988 - Section 194B",
+    "type": "Government Act",
+    "url": "https://morth.nic.in/",
+    "verified_on": "2026-05-26"
   }
+},
+{
+  "id": "NO_LICENSE",
+
+  "offence": "Driving Without Valid Licence",
+
+  "section": "181",
+
+  "related_sections": [
+    "3",
+    "4"
+  ],
+
+  "act": "Motor Vehicles Act, 1988",
+
+  "state": "Central",
+
+  "fine": {
+    "first_offence": "₹5000",
+    "repeat_offence": "Possible stricter punishment"
+  },
+
+  "imprisonment": "Up to 3 months",
+
+  "licence_suspension": "Not applicable",
+
+  "court_required": true,
+
+  "vehicle_impound": false,
+
+  "severity": "high",
+
+  "vehicle_type": "All Motor Vehicles",
+
+  "description": "Driving a motor vehicle without holding a valid driving licence or without satisfying legal driving eligibility.",
+
+  "keywords": [
+    "no licence",
+    "no license",
+    "driving without licence",
+    "invalid licence",
+    "learner violation"
+  ],
+
+  "documents_required": [
+    "Valid Driving Licence",
+    "Vehicle Registration"
+  ],
+
+  "safety_risk": "Untrained or unauthorized driving increases accident risk",
+
+  "verified": true,
+
+  "source": {
+    "name": "Motor Vehicles Act, 1988 - Section 181",
+    "type": "Government Act",
+    "url": "https://morth.nic.in/",
+    "verified_on": "2026-05-26"
+  }
+},
+{
+  "id": "DANGEROUS_DRIVING",
+
+  "offence": "Dangerous Driving / Mobile Phone Use While Driving",
+
+  "section": "184",
+
+  "act": "Motor Vehicles Act, 1988",
+
+  "state": "Central",
+
+  "fine": {
+    "first_offence": "₹5000",
+    "repeat_offence": "₹10000"
+  },
+
+  "imprisonment": {
+    "first_offence": "Up to 1 year or minimum 6 months",
+    "repeat_offence": "Up to 2 years"
+  },
+
+  "licence_suspension": {
+    "possible": true,
+    "suspension_period": "Up to 6 months during case investigation"
+  },
+
+  "court_required": true,
+
+  "vehicle_impound": false,
+
+  "severity": "high",
+
+  "vehicle_type": "All Motor Vehicles",
+
+  "dangerous_actions": [
+    "Jumping red light",
+    "Violating stop sign",
+    "Using handheld communication devices while driving",
+    "Illegal overtaking",
+    "Driving against authorized traffic flow",
+    "Dangerous or reckless driving behavior"
+  ],
+
+  "description": "Driving a motor vehicle in a dangerous manner including mobile phone usage, signal jumping, reckless overtaking, or dangerous traffic violations.",
+
+  "keywords": [
+    "dangerous driving",
+    "mobile phone while driving",
+    "using phone while driving",
+    "signal jump",
+    "reckless driving",
+    "traffic violation"
+  ],
+
+  "documents_required": [
+    "Driving Licence",
+    "Vehicle Registration"
+  ],
+
+  "safety_risk": "Very high accident and public safety risk",
+
+  "legal_notes": [
+    "Police may suspend driving licence during investigation",
+    "Court may cancel or suspend licence after conviction",
+    "Repeat offenders may face harsher punishment"
+  ],
+
+  "verified": true,
+
+  "source": {
+    "name": "Motor Vehicles Act, 1988 - Section 184",
+    "type": "Government Act",
+    "url": "https://morth.nic.in/",
+    "verified_on": "2026-05-26"
+  }
+},
+{
+  "id": "NO_INSURANCE",
+
+  "offence": "Driving Uninsured Vehicle",
+
+  "section": "196",
+
+  "related_section": "146",
+
+  "act": "Motor Vehicles Act, 1988",
+
+  "state": "Central",
+
+  "fine": {
+    "first_offence": "₹2000",
+    "repeat_offence": "₹4000"
+  },
+
+  "imprisonment": {
+    "first_offence": "Up to 3 months",
+    "repeat_offence": "Up to 3 months"
+  },
+
+  "licence_suspension": "Possible under court discretion",
+
+  "court_required": true,
+
+  "vehicle_impound": false,
+
+  "severity": "high",
+
+  "vehicle_type": "All Motor Vehicles",
+
+  "insurance_requirement": {
+    "mandatory": true,
+    "minimum_requirement": "Valid third-party insurance"
+  },
+
+  "description": "Driving or allowing a motor vehicle to be driven without valid insurance coverage.",
+
+  "keywords": [
+  "no insurance",
+  "without insurance",
+  "uninsured vehicle",
+  "expired insurance",
+  "vehicle insurance",
+  "driving without insurance"
+  ],
+
+  "documents_required": [
+    "Valid Insurance Certificate",
+    "Driving Licence",
+    "Vehicle Registration"
+  ],
+
+  "safety_risk": "Financial and legal risk during accidents",
+
+  "legal_notes": [
+    "Section 146 mandates compulsory motor vehicle insurance",
+    "Both owner and driver may be held responsible"
+  ],
+
+  "verified": true,
+
+  "source": {
+    "name": "Motor Vehicles Act, 1988 - Section 196",
+    "type": "Government Act",
+    "url": "https://morth.nic.in/",
+    "verified_on": "2026-05-26"
+  }
+}
 ]

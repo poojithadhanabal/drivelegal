@@ -1,115 +1,142 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+import os
 import json
-import hashlib
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter()
 
-# Cache
-_cache = {}
+# =========================
+# LOAD LEGAL DATABASE
+# =========================
 
-# Load JSON database
-with open("data/legal_database/central_laws.json", "r", encoding="utf-8") as f:
-    LEGAL_DATA = json.load(f)
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-# Unsupported regions
-unsupported_regions = [
-    "UK",
-    "UAE",
-    "USA",
-    "Canada"
-]
+DATABASES = {
+    "Tamil Nadu": "tamilnadu_rules.json",
+    "Delhi": "delhi_rules.json",
+    "India": "central_laws.json"
+}
 
+def load_legal_database(location):
+
+    filename = DATABASES.get(location, "central_laws.json")
+
+    filepath = os.path.join(
+        BASE_DIR,
+        "data/legal_database",
+        filename
+    )
+
+    with open(filepath, "r", encoding="utf-8") as f:
+        return json.load(f)
+# =========================
+# REQUEST MODEL
+# =========================
 
 class ChatRequest(BaseModel):
     message: str
     location: str = "India"
 
 
-def find_matching_law(message: str):
+# =========================
+# FIND OFFENCE
+# =========================
 
-    msg = message.lower()
+def find_offence(user_message, legal_data):
 
-    for law in LEGAL_DATA:
+    msg = user_message.lower()
 
-        for keyword in law["keywords"]:
+    for offence in legal_data:
+
+        for keyword in offence.get("keywords", []):
 
             if keyword.lower() in msg:
-                return law
+                return offence
 
     return None
 
 
-def format_response(law):
+# =========================
+# FORMAT RESPONSE
+# =========================
 
-    return f"""
-🚦 {law['offence']}
+def format_response(data):
 
-📘 Section: {law['section']}
+    if not data:
+        return (
+            "❌ Sorry, no verified legal information found for this query."
+        )
+
+    imprisonment = data.get("imprisonment", "Not specified")
+
+    if isinstance(imprisonment, dict):
+
+        imprisonment_text = (
+            f"• First Offence: "
+            f"{imprisonment.get('first_offence', 'N/A')}\n"
+
+            f"• Repeat Offence: "
+            f"{imprisonment.get('repeat_offence', 'N/A')}"
+        )
+
+    else:
+        imprisonment_text = imprisonment
+
+    response = f"""
+🚦 Offence: {data['offence']}
+
+📘 Section:
+{data['section']}
 
 💰 Fine:
-• First Offence: {law['fine']['first_offence']}
-• Repeat Offence: {law['fine']['repeat_offence']}
+• First Offence: {data['fine']['first_offence']}
+• Repeat Offence: {data['fine']['repeat_offence']}
+
+⚖️ Imprisonment:
+{imprisonment_text}
+
+🚘 Vehicle Type:
+{data['vehicle_type']}
 
 📝 Description:
-{law['description']}
+{data['description']}
 
-⚖️ Act:
-{law['act']}
+⚠️ Severity:
+{data['severity'].upper()}
 
 ✅ Verified Source:
-{law['source']['name']} ({law['source']['year']})
+{data['source']['name']}
 """
 
+    return response.strip()
+
+
+# =========================
+# CHAT API
+# =========================
 
 @router.post("/chat")
 async def chat(req: ChatRequest):
 
     try:
 
-        # Unsupported regions
-        if any(region.lower() in req.message.lower() for region in unsupported_regions):
+        legal_data = load_legal_database(req.location)
 
-            return {
-                "answer": "⚠️ No verified legal data available for this region yet.",
-                "location": req.location,
-                "status": "ok"
-            }
+        offence = find_offence(
+            req.message,
+            legal_data
+        )
 
-        # Cache key
-        cache_key = hashlib.md5(
-            f"{req.message.lower().strip()}-{req.location}".encode()
-        ).hexdigest()
+        answer = format_response(offence)
 
-        # Cached response
-        if cache_key in _cache:
-
-            return {
-                **_cache[cache_key],
-                "cached": True
-            }
-
-        # Find law
-        matched_law = find_matching_law(req.message)
-
-        if matched_law:
-            answer = format_response(matched_law)
-
-        else:
-            answer = (
-                "❌ Sorry, no verified legal information found for this query."
-            )
-
-        final_response = {
+        return {
             "answer": answer,
             "location": req.location,
             "status": "ok"
         }
-
-        # Save cache
-        _cache[cache_key] = final_response
-
-        return final_response
 
     except Exception as e:
 

@@ -1,82 +1,77 @@
-import { useState, useRef, useEffect } from 'react'
-import axios from 'axios'
+import { useEffect, useRef, useState } from 'react'
 
-const API = 'https://drivelegal-backend.onrender.com/api'
+const API = 'http://localhost:8000/api'
 
-export default function ChatWindow({ location }) {
+export default function ChatWindow() {
 
   const [messages, setMessages] = useState([
     {
-      role: 'bot',
-      text: `👋 Hello! I am DriveLegal.
-
-Ask me anything about:
-• Traffic fines
-• Challans
-• Road safety rules
-• Motor Vehicle Act`
-    }
+      sender: 'bot',
+      text:
+        '👋 Hello! I am DriveLegal. Ask me anything about:\n\n• Traffic fines\n• Challans\n• Road safety rules\n• Motor Vehicle Act',
+    },
   ])
 
   const [input, setInput] = useState('')
+  const [location, setLocation] = useState('Tamil Nadu')
   const [loading, setLoading] = useState(false)
 
-  const bottomRef = useRef(null)
+  const messagesEndRef = useRef(null)
 
-  // Auto scroll
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({
-      behavior: 'smooth'
+    messagesEndRef.current?.scrollIntoView({
+      behavior: 'smooth',
     })
   }, [messages])
 
-  const send = async () => {
+  const sendMessage = async () => {
 
-    if (!input.trim() || loading) return
+    if (!input.trim()) return
 
-    const userMsg = input.trim()
+    const userMessage = {
+      sender: 'user',
+      text: input,
+    }
 
-    // Add user message
-    setMessages(prev => [
-      ...prev,
-      {
-        role: 'user',
-        text: userMsg
-      }
-    ])
+    setMessages((prev) => [...prev, userMessage])
+
+    const currentInput = input
 
     setInput('')
     setLoading(true)
 
     try {
 
-      const res = await axios.post(`${API}/chat`, {
-        message: userMsg,
-        location: location || 'India'
+      const response = await fetch(`${API}/chat`, {
+        method: 'POST',
+
+        headers: {
+          'Content-Type': 'application/json',
+        },
+
+        body: JSON.stringify({
+          message: currentInput,
+          location: location,
+        }),
       })
 
-      setMessages(prev => [
+      const data = await response.json()
+
+      const botMessage = {
+        sender: 'bot',
+        text: data.answer,
+      }
+
+      setMessages((prev) => [...prev, botMessage])
+
+    } catch (error) {
+
+      setMessages((prev) => [
         ...prev,
         {
-          role: 'bot',
-          text: res.data.answer,
-          source: res.data.location
-        }
-      ])
-
-    } catch {
-
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'bot',
-          text: `⚠️ Could not reach server.
-
-Please check:
-• Backend is running
-• API server is active
-• Internet connection`
-        }
+          sender: 'bot',
+          text: '❌ Failed to connect to backend.',
+        },
       ])
     }
 
@@ -84,161 +79,257 @@ Please check:
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-100">
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="min-h-screen bg-[#0f1220] text-white flex flex-col">
 
-        {messages.map((m, i) => (
+      {/* HEADER */}
 
-          <div
-            key={i}
-            className={`flex ${
-              m.role === 'user'
-                ? 'justify-end'
-                : 'justify-start'
-            }`}
-          >
+      <div className="border-b border-white/10 backdrop-blur-md bg-[#0f1220]/80 sticky top-0 z-50">
 
-            <div
-              className={`
-                max-w-[85%]
-                px-5
-                py-4
-                rounded-2xl
-                text-sm
-                shadow-md
-                whitespace-pre-wrap
-                leading-7
-                transition-all
-                duration-200
-                text-left
+        <div className="max-w-6xl mx-auto px-6 py-6">
 
-                ${
-                  m.role === 'user'
-                    ? 'bg-blue-600 text-white rounded-br-sm'
-                    : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
-                }
-              `}
-            >
+          <div className="flex flex-col items-center">
 
-              {m.text}
+            <h1 className="text-5xl md:text-6xl font-bold mb-3 tracking-tight">
+              🚦 DriveLegal
+            </h1>
 
-              {m.source && (
-                <p className="text-xs mt-3 opacity-60">
-                  📍 {m.source}
-                </p>
-              )}
+            <p className="text-xl text-gray-300 mb-5">
+              AI Traffic Law Assistant
+            </p>
 
-            </div>
+            <div className="flex items-center gap-3 flex-wrap justify-center">
 
-          </div>
-
-        ))}
-
-        {/* Loading animation */}
-        {loading && (
-
-          <div className="flex justify-start">
-
-            <div className="
-              bg-white
-              border
-              border-gray-200
-              px-4
-              py-3
-              rounded-2xl
-              rounded-bl-sm
-              shadow-sm
-            ">
-
-              <span className="flex gap-1">
-
-                <span className="
-                  w-2 h-2
-                  bg-green-500
-                  rounded-full
-                  animate-bounce
-                  [animation-delay:0ms]
-                "/>
-
-                <span className="
-                  w-2 h-2
-                  bg-green-500
-                  rounded-full
-                  animate-bounce
-                  [animation-delay:150ms]
-                "/>
-
-                <span className="
-                  w-2 h-2
-                  bg-green-500
-                  rounded-full
-                  animate-bounce
-                  [animation-delay:300ms]
-                "/>
-
+              <span className="text-lg text-gray-300">
+                📍 Your location:
               </span>
 
+              <select
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="
+                  bg-[#1b2138]
+                  border
+                  border-gray-700
+                  rounded-xl
+                  px-4
+                  py-2
+                  text-white
+                  outline-none
+                  focus:border-pink-500
+                  transition
+                "
+              >
+                <option>Tamil Nadu</option>
+                <option>Delhi</option>
+                <option>Karnataka</option>
+                <option>Maharashtra</option>
+              </select>
+
             </div>
 
           </div>
 
-        )}
-
-        <div ref={bottomRef} />
+        </div>
 
       </div>
 
-      {/* Input */}
-      <div className="
-        border-t
-        border-gray-200
-        bg-white
-        p-3
-      ">
+      {/* CHAT AREA */}
 
-        <div className="flex gap-2">
+      <div className="flex-1 overflow-y-auto px-4 py-8">
 
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === 'Enter' && send()
-            }
-            placeholder="Ask about traffic fines..."
-            className="
-              flex-1
-              border
-              border-gray-300
-              rounded-xl
-              px-4
-              py-3
-              text-sm
-              focus:outline-none
-              focus:ring-2
-              focus:ring-green-500
-            "
-          />
+        <div className="max-w-5xl mx-auto flex flex-col gap-6">
 
-          <button
-            onClick={send}
-            disabled={loading}
-            className="
-              bg-green-700
-              hover:bg-green-800
-              disabled:bg-gray-400
-              text-white
-              px-5
-              py-2
-              rounded-xl
-              text-sm
-              font-semibold
-              transition-colors
-            "
-          >
-            {loading ? '...' : 'Send'}
-          </button>
+          {messages.map((m, idx) => (
+
+            <div
+              key={idx}
+              className={`flex ${
+                m.sender === 'user'
+                  ? 'justify-end'
+                  : 'justify-start'
+              }`}
+            >
+
+              <div
+                className={`
+
+                  w-full
+                  max-w-3xl
+                  px-7
+                  py-6
+                  rounded-3xl
+                  shadow-2xl
+                  break-words
+                  transition-all
+
+                  ${
+                    m.sender === 'user'
+
+                      ? `
+                        bg-gradient-to-r
+                        from-pink-600
+                        to-pink-500
+                        text-white
+                      `
+
+                      : `
+                        bg-[#1b2138]
+                        border
+                        border-gray-700
+                        border-l-4
+                        border-l-pink-500
+                        text-gray-100
+                        backdrop-blur-md
+                      `
+                  }
+
+                `}
+              >
+
+                <div className="text-left text-[18px] leading-8">
+
+                  {m.text.split('\n').map((line, index) => (
+
+                    <p
+                      key={index}
+                      className={line.trim() === '' ? 'h-4' : 'mb-1'}
+                    >
+                      {line}
+                    </p>
+
+                  ))}
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
+          {/* LOADING */}
+
+          {loading && (
+
+            <div className="flex justify-start">
+
+              <div
+                className="
+                  bg-[#1b2138]
+                  border
+                  border-gray-700
+                  border-l-4
+                  border-l-pink-500
+                  px-6
+                  py-5
+                  rounded-3xl
+                  text-gray-300
+                  animate-pulse
+                "
+              >
+                ⏳ Checking verified legal database...
+              </div>
+
+            </div>
+
+          )}
+
+          <div ref={messagesEndRef} />
+
+        </div>
+
+      </div>
+
+      {/* INPUT AREA */}
+
+      <div className="border-t border-white/10 bg-[#0f1220]/90 backdrop-blur-md">
+
+        <div className="max-w-5xl mx-auto p-4">
+
+          {/* QUICK SUGGESTIONS */}
+
+          <div className="flex flex-wrap gap-3 mb-4">
+
+            {[
+              'helmet violation',
+              'drink and drive',
+              'mobile while driving',
+              'no insurance',
+            ].map((suggestion, idx) => (
+
+              <button
+                key={idx}
+                onClick={() => setInput(suggestion)}
+                className="
+                  bg-[#1b2138]
+                  border
+                  border-gray-700
+                  hover:border-pink-500
+                  hover:bg-[#242c49]
+                  px-4
+                  py-2
+                  rounded-full
+                  text-sm
+                  transition
+                "
+              >
+                💡 {suggestion}
+              </button>
+
+            ))}
+
+          </div>
+
+          {/* INPUT */}
+
+          <div className="flex gap-3">
+
+            <input
+              type="text"
+              placeholder="Ask about traffic fines..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  sendMessage()
+                }
+              }}
+              className="
+                flex-1
+                bg-[#1b2138]
+                text-white
+                px-5
+                py-4
+                rounded-2xl
+                border
+                border-gray-700
+                outline-none
+                focus:border-pink-500
+                text-[17px]
+              "
+            />
+
+            <button
+              onClick={sendMessage}
+              disabled={loading}
+              className="
+                bg-gradient-to-r
+                from-pink-600
+                to-pink-500
+                hover:opacity-90
+                px-7
+                py-4
+                rounded-2xl
+                font-semibold
+                transition
+                disabled:opacity-50
+              "
+            >
+              {loading ? '...' : 'Send'}
+            </button>
+
+          </div>
 
         </div>
 
