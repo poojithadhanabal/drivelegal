@@ -1,66 +1,162 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-import psycopg2
+import json
 import os
 
 router = APIRouter()
 
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+# LOAD TAMIL NADU RULES
+with open(
+    os.path.join(
+        BASE_DIR,
+        "data/legal_database/tamilnadu_rules.json"
+    ),
+    "r",
+    encoding="utf-8"
+) as f:
+
+    TN_RULES = json.load(f)
+
+
 class ChallanRequest(BaseModel):
+
     violation: str
-    vehicle_type: str
-    state: str = "National"
+    vehicle_type: str = "Any Vehicle"
+    state: str = "Tamil Nadu"
     is_repeat: bool = False
 
-def get_db():
-    return psycopg2.connect(
-        host="localhost", database="drivelegal_db",
-        user="postgres", password="database123"
-    )
 
 @router.post("/challan")
 async def calculate_challan(req: ChallanRequest):
+
     try:
-        conn = get_db()
-        cur  = conn.cursor()
 
-        # Try state-specific fine first, fall back to National
-        cur.execute("""
-            SELECT f.base_fine, f.repeat_fine, f.law_section, f.notes,
-                   j.state, v.name, vt.name
-            FROM fine_schedules f
-            JOIN jurisdictions j  ON f.jurisdiction_id = j.id
-            JOIN violations    v  ON f.violation_id    = v.id
-            JOIN vehicle_types vt ON f.vehicle_type_id = vt.id
-            WHERE (j.state = %s OR j.state = 'National')
-              AND v.name  ILIKE %s
-              AND (vt.name ILIKE %s OR vt.name = 'Any Vehicle')
-            ORDER BY CASE WHEN j.state = %s THEN 0 ELSE 1 END
-            LIMIT 1
-        """, (req.state, req.violation, req.vehicle_type, req.state))
+        violation_input = req.violation.lower()
 
-        row = cur.fetchone()
-        cur.close()
-        conn.close()
+        for offence in TN_RULES:
 
-        if not row:
-            return {"error": "Fine data not found. Try selecting 'Any Vehicle' or 'National'."}
+            offence_name = offence.get(
+                "offence",
+                ""
+            ).lower()
 
-        base, repeat, section, notes, state, violation, vehicle = row
-        fine  = repeat if req.is_repeat else base
-        court = round(fine * 0.1)   # 10% court fee estimate
-        total = fine + court
+            keywords = [
+                k.lower()
+                for k in offence.get("keywords", [])
+            ]
+
+            # MATCH OFFENCE
+            if (
+                violation_input == offence_name
+                or violation_input in keywords
+            ):
+
+                fine = offence.get("fine", {})
+
+                if isinstance(fine, dict):
+
+                    if req.is_repeat:
+
+                        fine_amount = fine.get(
+                            "repeat_offence",
+                            fine.get(
+                                "first_offence",
+                                "Not specified"
+                            )
+                        )
+
+                    else:
+
+                        fine_amount = fine.get(
+                            "first_offence",
+                            "Not specified"
+                        )
+
+                else:
+
+                    fine_amount = fine
+
+                # REMOVE ₹ SYMBOL
+                if isinstance(fine_amount, str):
+
+                    fine_numeric = (
+                        fine_amount
+                        .replace("₹", "")
+                        .replace(",", "")
+                    )
+
+                    try:
+                        fine_numeric = int(fine_numeric)
+                    except:
+                        fine_numeric = 0
+
+                else:
+
+                    fine_numeric = fine_amount
+
+                court_fee = int(fine_numeric * 0.1)
+
+                total = fine_numeric + court_fee
+
+                return {
+
+                    "violation":
+                        offence.get("offence"),
+
+                    "vehicle_type":
+                        offence.get(
+                            "vehicle_type",
+                            req.vehicle_type
+                        ),
+
+                    "state":
+                        offence.get(
+                            "state",
+                            "Tamil Nadu"
+                        ),
+
+                    "base_fine":
+                        fine_numeric,
+
+                    "court_fee":
+                        court_fee,
+
+                    "total":
+                        total,
+
+                    "law_section":
+                        offence.get(
+                            "section",
+                            "Not specified"
+                        ),
+
+                    "is_repeat":
+                        req.is_repeat,
+
+                    "notes":
+                        offence.get(
+                            "description",
+                            ""
+                        ),
+
+                    "status":
+                        "ok"
+                }
 
         return {
-            "violation":    violation,
-            "vehicle_type": vehicle,
-            "state":        state,
-            "base_fine":    fine,
-            "court_fee":    court,
-            "total":        total,
-            "law_section":  section,
-            "is_repeat":    req.is_repeat,
-            "notes":        notes,
-            "status":       "ok"
+
+            "error":
+                "Violation not found in Tamil Nadu rules database.",
+
+            "status":
+                "error"
         }
+
     except Exception as e:
-        return {"error": str(e), "status": "error"}
+
+        return {
+            "error": str(e),
+            "status": "error"
+        }

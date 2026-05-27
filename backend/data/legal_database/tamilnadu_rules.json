@@ -1,228 +1,156 @@
 [
   {
-    "id": "NO_LICENSE",
-    "offence": "Driving Without Driving Licence",
-    "section": "181",
-    "act": "Motor Vehicles Act, 1988",
-    "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹5000",
-      "repeat_offence": "₹5000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "All Vehicles",
-    "description": "Driving a motor vehicle without a valid driving licence.",
-    "severity": "high",
-    "keywords": [
-      "no licence",
-      "without licence",
-      "driving licence",
-      "license fine",
-      "no driving license"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
-  },
-
-  {
-    "id": "DANGEROUS_DRIVING",
-    "offence": "Dangerous Driving / Mobile Phone While Driving",
-    "section": "184",
-    "act": "Motor Vehicles Act, 1988",
-    "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹1000",
-      "repeat_offence": "₹10000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "All Vehicles",
-    "description": "Dangerous driving including rash driving and use of handheld communication devices while driving.",
-    "severity": "high",
-    "keywords": [
-      "dangerous driving",
-      "rash driving",
-      "mobile while driving",
-      "phone while driving",
-      "using phone while driving"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
-  },
-
-  {
-    "id": "OVERSPEEDING_LMV",
-    "offence": "Overspeeding - Light Motor Vehicle",
-    "section": "183(1)(i)",
-    "act": "Motor Vehicles Act, 1988",
-    "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹1000",
-      "repeat_offence": "₹1000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "Light Motor Vehicle",
-    "description": "Driving a light motor vehicle beyond prescribed speed limit.",
-    "severity": "medium",
-    "keywords": [
-      "overspeed",
-      "speeding",
-      "over speed",
-      "speed limit"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
-  },
-
-  {
-    "id": "NO_HELMET",
     "offence": "Riding Without Helmet",
+    "keywords": ["helmet violation", "no helmet", "without helmet"],
     "section": "194D",
-    "act": "Motor Vehicles Act, 1988",
-    "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹1000",
-      "repeat_offence": "₹1000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "Motorcycles and Two-Wheelers",
-    "description": "Driving or riding a motorcycle without wearing protective headgear.",
+    "fine": "500",
     "severity": "medium",
-    "keywords": [
-      "helmet",
-      "no helmet",
-      "without helmet",
-      "helmet fine",
-      "helmet violation"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
-  },
-
-  {
-    "id": "SEATBELT",
-    "offence": "Not Wearing Seat Belt",
-    "section": "194B(1)",
-    "act": "Motor Vehicles Act, 1988",
+    "vehicleType": "two-wheeler",
     "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹1000",
-      "repeat_offence": "₹1000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "Cars and Four-Wheelers",
-    "description": "Driving a motor vehicle without wearing seat belt.",
-    "severity": "medium",
-    "keywords": [
-      "seat belt",
-      "seatbelt",
-      "without seat belt",
-      "seat belt fine"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
+    "description": "Riding or travelling on a two-wheeler without wearing helmet.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement" 
   },
-
   {
-    "id": "TRIPLE_RIDING",
-    "offence": "Triple Riding / Excess Persons on Motorcycle",
-    "section": "194C",
-    "act": "Motor Vehicles Act, 1988",
+    "offence": "Triple Riding",
+    "keywords": ["triple riding", "three persons bike"],
+    "section": "128",
+    "fine": "1000",
+    "severity": "medium",
+    "vehicleType": "two-wheeler",
     "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹1000",
-      "repeat_offence": "₹1000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "Two Wheelers",
-    "description": "Carrying excess passengers on a motorcycle beyond permitted capacity.",
-    "severity": "medium",
-    "keywords": [
-      "triple riding",
-      "three persons bike",
-      "extra passenger",
-      "excess rider"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
+    "description": "Carrying more than two persons on a two-wheeler.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
   },
-
   {
-    "id": "NO_INSURANCE",
+    "offence": "Drunk Driving",
+    "keywords": ["drink and drive", "drunk driving", "alcohol driving"],
+    "section": "185",
+    "fine": "10000",
+    "severity": "high",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Driving under influence of alcohol or drugs.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Using Mobile While Driving",
+    "keywords": ["mobile while driving", "phone while driving"],
+    "section": "184",
+    "fine": "5000",
+    "severity": "high",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Using mobile phone while driving.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
     "offence": "Driving Without Insurance",
+    "keywords": ["no insurance", "without insurance"],
     "section": "196",
-    "act": "Motor Vehicles Act, 1988",
-    "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹2000",
-      "repeat_offence": "₹4000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "All Vehicles",
-    "description": "Driving a motor vehicle without valid insurance.",
+    "fine": "2000",
     "severity": "high",
-    "keywords": [
-      "no insurance",
-      "without insurance",
-      "insurance expired",
-      "insurance fine"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Driving vehicle without valid insurance.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
   },
-
   {
-    "id": "NO_REGISTRATION",
-    "offence": "Driving Without Registration",
-    "section": "192(1)",
-    "act": "Motor Vehicles Act, 1988",
-    "state": "Tamil Nadu",
-    "fine": {
-      "first_offence": "₹2500",
-      "repeat_offence": "₹5000"
-    },
-    "imprisonment": "Not specified in Gazette",
-    "vehicle_type": "All Vehicles",
-    "description": "Using a motor vehicle without valid registration.",
+    "offence": "Driving Without Licence",
+    "keywords": ["no licence", "without driving licence"],
+    "section": "3/181",
+    "fine": "5000",
     "severity": "high",
-    "keywords": [
-      "no registration",
-      "without rc",
-      "unregistered vehicle",
-      "registration expired"
-    ],
-    "source": {
-      "name": "Tamil Nadu Government Gazette Extraordinary",
-      "notification_no": "No. 491",
-      "date": "19 October 2022",
-      "verified_on": "2026-05-26"
-    }
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Driving vehicle without valid driving licence.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Over Speeding",
+    "keywords": ["overspeeding", "high speed"],
+    "section": "183",
+    "fine": "2000",
+    "severity": "medium",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Driving vehicle beyond speed limit.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Dangerous Driving",
+    "keywords": ["rash driving", "dangerous driving"],
+    "section": "184",
+    "fine": "5000",
+    "severity": "high",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Driving dangerously or recklessly.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Jumping Traffic Signal",
+    "keywords": ["signal jumping", "red light violation"],
+    "section": "184",
+    "fine": "5000",
+    "severity": "medium",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Crossing traffic signal during red light.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Seat Belt Violation",
+    "keywords": ["no seat belt", "seat belt violation"],
+    "section": "194B",
+    "fine": "1000",
+    "severity": "medium",
+    "vehicleType": "four-wheeler",
+    "state": "Tamil Nadu",
+    "description": "Not wearing seat belt while driving.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "No PUC Certificate",
+    "keywords": ["no puc", "pollution certificate"],
+    "section": "190(2)",
+    "fine": "2000",
+    "severity": "medium",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Driving without valid pollution certificate.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Allowing Minor To Drive",
+    "keywords": ["minor driving", "underage driving"],
+    "section": "199A",
+    "fine": "25000",
+    "severity": "high",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Allowing underage person to drive vehicle.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Racing On Public Roads",
+    "keywords": ["street racing", "racing"],
+    "section": "189",
+    "fine": "5000",
+    "severity": "high",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Participating in racing or speed testing on public roads.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
+  },
+  {
+    "offence": "Blocking Emergency Vehicle",
+    "keywords": ["blocking ambulance", "blocking fire brigade"],
+    "section": "194E",
+    "fine": "10000",
+    "severity": "high",
+    "vehicleType": "all",
+    "state": "Tamil Nadu",
+    "description": "Obstructing movement of emergency vehicles.",
+    "source": "Motor Vehicles Act, 1988-Tamil Nadu Traffic Enforcement"
   }
 ]
