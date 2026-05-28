@@ -97,13 +97,37 @@ def get_database(location):
 def find_offence(user_message, location="Tamil Nadu"):
 
     msg = user_message.lower()
+    print("USER LOCATION:", location)
 
     # LOAD DATABASE
-    if location.lower() == "tamil nadu":
+    location_lower = location.lower()
+
+    if location_lower == "tamil nadu":
 
         database_path = os.path.join(
             BASE_DIR,
             "data/legal_database/tamilnadu_rules.json"
+        )
+
+    elif location_lower == "delhi":
+
+        database_path = os.path.join(
+            BASE_DIR,
+            "data/legal_database/delhi_rules.json"
+        )
+
+    elif location_lower == "karnataka":
+
+        database_path = os.path.join(
+            BASE_DIR,
+            "data/legal_database/karnataka_rules.json"
+        )
+
+    elif location_lower == "maharashtra":
+
+        database_path = os.path.join(
+            BASE_DIR,
+            "data/legal_database/maharashtra_rules.json"
         )
 
     else:
@@ -112,6 +136,8 @@ def find_offence(user_message, location="Tamil Nadu"):
             BASE_DIR,
             "data/legal_database/central_laws.json"
         )
+
+    print("DATABASE PATH:", database_path)
 
     with open(database_path, "r", encoding="utf-8") as f:
 

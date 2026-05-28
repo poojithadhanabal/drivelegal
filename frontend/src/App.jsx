@@ -1,5 +1,6 @@
 import ChatWindow from './components/ChatWindow'
 import Calculator from './components/Calculator'
+import Dashboard from './components/Dashboard'
 
 function App() {
 
@@ -12,6 +13,8 @@ function App() {
       <div className="max-w-5xl mx-auto px-4 pb-10">
         <Calculator />
       </div>
+
+      <Dashboard />
 
     </div>
   )

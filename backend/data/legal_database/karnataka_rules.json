@@ -13,9 +13,9 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving vehicle without valid insurance.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -32,9 +32,9 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving under influence of alcohol or drugs.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -51,9 +51,9 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving without valid pollution under control certificate.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -70,9 +70,9 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving vehicle without valid driving licence.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -89,9 +89,9 @@
     },
     "severity": "medium",
     "vehicleType": "two-wheeler",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving or riding motorcycle without wearing protective headgear.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -108,9 +108,9 @@
     },
     "severity": "medium",
     "vehicleType": "four-wheeler",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Not wearing seat belt while driving.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -127,9 +127,9 @@
     },
     "severity": "medium",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Crossing traffic signal during red light.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -146,9 +146,9 @@
     },
     "severity": "medium",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving vehicle beyond prescribed speed limit.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -165,9 +165,9 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Obstructing movement of emergency vehicles.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -184,9 +184,9 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Using mobile phone while driving.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -202,9 +202,9 @@
     },
     "severity": "medium",
     "vehicleType": "two-wheeler",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Carrying more than two persons on a two-wheeler.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   },
 
   {
@@ -221,8 +221,8 @@
     },
     "severity": "high",
     "vehicleType": "all",
-    "state": "Delhi",
+    "state": "Karnataka",
     "description": "Driving dangerously or recklessly on public roads.",
-    "source": "Delhi Traffic Fine Table"
+    "source": "Karnataka Traffic Fine Table"
   }
 ]
