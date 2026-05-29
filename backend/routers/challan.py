@@ -5,37 +5,108 @@ import os
 
 router = APIRouter()
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(
+    os.path.dirname(__file__)
+)
 
-# LOAD TAMIL NADU RULES
-with open(
-    os.path.join(
+# ================================
+# DATABASE SELECTOR
+# ================================
+
+def get_database(state):
+
+    state_lower = state.lower()
+
+    if state_lower == "tamil nadu":
+
+        return os.path.join(
+            BASE_DIR,
+            "data/legal_database/tamilnadu_rules.json"
+        )
+
+    elif state_lower == "delhi":
+
+        return os.path.join(
+            BASE_DIR,
+            "data/legal_database/delhi_rules.json"
+        )
+
+    elif state_lower == "karnataka":
+
+        return os.path.join(
+            BASE_DIR,
+            "data/legal_database/karnataka_rules.json"
+        )
+
+    elif state_lower == "maharashtra":
+
+        return os.path.join(
+            BASE_DIR,
+            "data/legal_database/maharashtra_rules.json"
+        )
+
+    elif state_lower in [
+        "uk",
+        "united kingdom"
+    ]:
+
+        return os.path.join(
+            BASE_DIR,
+            "data/legal_database/uk_rules.json"
+        )
+
+    return os.path.join(
         BASE_DIR,
-        "data/legal_database/tamilnadu_rules.json"
-    ),
-    "r",
-    encoding="utf-8"
-) as f:
+        "data/legal_database/central_laws.json"
+    )
 
-    TN_RULES = json.load(f)
-
+# ================================
+# REQUEST MODEL
+# ================================
 
 class ChallanRequest(BaseModel):
 
     violation: str
+
     vehicle_type: str = "Any Vehicle"
+
     state: str = "Tamil Nadu"
+
     is_repeat: bool = False
 
+# ================================
+# CHALLAN CALCULATOR
+# ================================
 
 @router.post("/challan")
-async def calculate_challan(req: ChallanRequest):
+
+async def calculate_challan(
+    req: ChallanRequest
+):
 
     try:
 
-        violation_input = req.violation.lower()
+        # LOAD DATABASE
 
-        for offence in TN_RULES:
+        database_path = get_database(
+            req.state
+        )
+
+        with open(
+            database_path,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
+            RULES = json.load(f)
+
+        violation_input = (
+            req.violation.lower()
+        )
+
+        # SEARCH OFFENCE
+
+        for offence in RULES:
 
             offence_name = offence.get(
                 "offence",
@@ -43,24 +114,47 @@ async def calculate_challan(req: ChallanRequest):
             ).lower()
 
             keywords = [
+
                 k.lower()
-                for k in offence.get("keywords", [])
+
+                for k in offence.get(
+                    "keywords",
+                    []
+                )
+
             ]
 
-            # MATCH OFFENCE
+            # MATCH
+
             if (
-                violation_input == offence_name
-                or violation_input in keywords
+
+                violation_input
+                == offence_name
+
+                or
+
+                violation_input
+                in keywords
+
             ):
 
-                fine = offence.get("fine", {})
+                fine = offence.get(
+                    "fine",
+                    {}
+                )
+
+                # ======================
+                # FINE HANDLING
+                # ======================
 
                 if isinstance(fine, dict):
 
                     if req.is_repeat:
 
                         fine_amount = fine.get(
+
                             "repeat_offence",
+
                             fine.get(
                                 "first_offence",
                                 "Not specified"
@@ -78,43 +172,88 @@ async def calculate_challan(req: ChallanRequest):
 
                     fine_amount = fine
 
-                # REMOVE ₹ SYMBOL
-                if isinstance(fine_amount, str):
+                # ======================
+                # NUMERIC EXTRACTION
+                # ======================
 
-                    fine_numeric = (
+                fine_numeric = 0
+
+                if isinstance(
+                    fine_amount,
+                    str
+                ):
+
+                    cleaned = (
+
                         fine_amount
+
                         .replace("₹", "")
+                        .replace("£", "")
                         .replace(",", "")
+
                     )
 
+                    # EXTRACT NUMBERS ONLY
+
+                    numeric = ""
+
+                    for char in cleaned:
+
+                        if char.isdigit():
+
+                            numeric += char
+
                     try:
-                        fine_numeric = int(fine_numeric)
+
+                        fine_numeric = int(
+                            numeric
+                        )
+
                     except:
+
                         fine_numeric = 0
 
-                else:
+                elif isinstance(
+                    fine_amount,
+                    int
+                ):
 
                     fine_numeric = fine_amount
 
-                court_fee = int(fine_numeric * 0.1)
+                # ======================
+                # COURT FEE
+                # ======================
 
-                total = fine_numeric + court_fee
+                court_fee = int(
+                    fine_numeric * 0.1
+                )
+
+                total = (
+                    fine_numeric
+                    + court_fee
+                )
+
+                # ======================
+                # RESPONSE
+                # ======================
 
                 return {
 
                     "violation":
-                        offence.get("offence"),
+                        offence.get(
+                            "offence"
+                        ),
 
                     "vehicle_type":
                         offence.get(
-                            "vehicle_type",
+                            "vehicleType",
                             req.vehicle_type
                         ),
 
                     "state":
                         offence.get(
                             "state",
-                            "Tamil Nadu"
+                            req.state
                         ),
 
                     "base_fine":
@@ -132,6 +271,24 @@ async def calculate_challan(req: ChallanRequest):
                             "Not specified"
                         ),
 
+                    "severity":
+                        offence.get(
+                            "severity",
+                            "Unknown"
+                        ),
+
+                    "risk_score":
+                        offence.get(
+                            "risk_score",
+                            "Unknown Risk"
+                        ),
+
+                    "source":
+                        offence.get(
+                            "source",
+                            "Legal Database"
+                        ),
+
                     "is_repeat":
                         req.is_repeat,
 
@@ -145,10 +302,20 @@ async def calculate_challan(req: ChallanRequest):
                         "ok"
                 }
 
+        # ======================
+        # NOT FOUND
+        # ======================
+
         return {
 
             "error":
-                "Violation not found in Tamil Nadu rules database.",
+                (
+                    "Violation not found "
+                    "in legal database."
+                ),
+
+            "offline_fallback":
+                True,
 
             "status":
                 "error"
@@ -156,7 +323,26 @@ async def calculate_challan(req: ChallanRequest):
 
     except Exception as e:
 
+        # ======================
+        # OFFLINE / LOW NETWORK
+        # ======================
+
         return {
-            "error": str(e),
-            "status": "error"
+
+            "error":
+                (
+                    "⚠ DriveLegal is "
+                    "currently unavailable "
+                    "or experiencing "
+                    "low-network conditions."
+                ),
+
+            "details":
+                str(e),
+
+            "offline_mode":
+                True,
+
+            "status":
+                "fallback"
         }

@@ -1,0 +1,130 @@
+[
+  {
+    "offence": "Drunk Driving",
+    "keywords": [
+      "drink driving",
+      "drink and driving",
+      "drink and drive",
+      "drunk driving uk",
+      "drunk driving",
+      "alcohol driving"
+    ],
+    "section": "Road Traffic Act 1988",
+    "fine": {
+      "first_offence": "Unlimited fine and driving ban",
+      "repeat_offence": "Possible imprisonment"
+    },
+    "severity": "high",
+    "risk_score": "Severe Risk",
+    "vehicleType": "all",
+    "state": "United Kingdom",
+    "description": "Driving under the influence of alcohol.",
+    "source": "UK Highway Code"
+  },
+
+  {
+    "offence": "Using Mobile While Driving",
+    "keywords": [
+      "phone while driving",
+      "mobile while driving",
+      "using phone",
+      "mobile use",
+      "using mobile",
+      "phone usage driving"
+    ],
+    "section": "Road Vehicles Regulations",
+    "fine": {
+      "first_offence": "£200 and 6 penalty points",
+      "repeat_offence": "Higher penalties possible"
+    },
+    "severity": "high",
+    "risk_score": "High Risk",
+    "vehicleType": "all",
+    "state": "United Kingdom",
+    "description": "Using handheld mobile phone while driving.",
+    "source": "UK Highway Code"
+  },
+
+  {
+    "offence": "No Seat Belt",
+    "keywords": [
+      "seat belt",
+      "no seat belt",
+      "seatbelt",
+      "without seat belt"
+    ],
+    "section": "Road Traffic Act",
+    "fine": {
+      "first_offence": "£100 fine",
+      "repeat_offence": "Up to £500 in court"
+    },
+    "severity": "medium",
+    "risk_score": "Medium Risk",
+    "vehicleType": "four-wheeler",
+    "state": "United Kingdom",
+    "description": "Failure to wear seat belt.",
+    "source": "UK Highway Code"
+  },
+
+  {
+    "offence": "Speeding",
+    "keywords": [
+      "overspeeding",
+      "speeding",
+      "speed limit",
+      "high speed"
+    ],
+    "section": "Road Traffic Regulation Act",
+    "fine": {
+      "first_offence": "£100 and 3 penalty points",
+      "repeat_offence": "Possible driving ban"
+    },
+    "severity": "high",
+    "risk_score": "High Risk",
+    "vehicleType": "all",
+    "state": "United Kingdom",
+    "description": "Driving above speed limit.",
+    "source": "UK Highway Code"
+  },
+
+  {
+    "offence": "Driving Without Insurance",
+    "keywords": [
+      "no insurance",
+      "without insurance",
+      "insurance",
+      "insurance expired"
+    ],
+    "section": "Road Traffic Act",
+    "fine": {
+      "first_offence": "£300 and 6 penalty points",
+      "repeat_offence": "Vehicle seizure possible"
+    },
+    "severity": "high",
+    "risk_score": "High Risk",
+    "vehicleType": "all",
+    "state": "United Kingdom",
+    "description": "Driving without valid insurance.",
+    "source": "UK Highway Code"
+  },
+  {
+  "offence": "Helmet Violation",
+  "keywords": [
+    "helmet",
+    "helmet violation",
+    "no helmet",
+    "without helmet"
+  ],
+  "section": "Road Traffic Act 1988",
+  "fine": {
+    "first_offence": "£100 fine",
+    "repeat_offence": "Possible court action"
+  },
+  "severity": "medium",
+  "risk_score": "Medium Risk",
+  "vehicleType": "two-wheeler",
+  "state": "United Kingdom",
+  "description": "Riding motorcycle without wearing protective helmet.",
+  "source": "UK Highway Code"
+}
+]

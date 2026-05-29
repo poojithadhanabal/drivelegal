@@ -15,9 +15,12 @@ export default function ChatWindow() {
   const [input, setInput] = useState('')
   const [location, setLocation] = useState('Tamil Nadu')
   const [loading, setLoading] = useState(false)
+  const [isOffline, setIsOffline] = useState(false)
   const [history, setHistory] = useState([])
 
   const messagesEndRef = useRef(null)
+
+  // AUTO SCROLL
 
   useEffect(() => {
 
@@ -27,26 +30,40 @@ export default function ChatWindow() {
 
   }, [messages])
 
+  // SEND MESSAGE
+
   const sendMessage = async () => {
 
     if (!input.trim()) return
 
     const currentInput = input
+
+    // SAVE HISTORY
+
     setHistory((prev) => {
+
       const updated = [
         currentInput,
         ...prev.filter(
           (item) => item !== currentInput
         )
       ]
-      return updated.slice(0,5)
+
+      return updated.slice(0, 5)
+
     })
 
-    setMessages([
+    // SHOW USER MESSAGE
+
+    setMessages((prev) => [
+
+      ...prev,
+
       {
         sender: 'user',
         text: currentInput,
       },
+
     ])
 
     setInput('')
@@ -54,45 +71,61 @@ export default function ChatWindow() {
 
     try {
 
-      const response = await fetch(`${API}/chat`, {
+      // OFFLINE SIMULATION
 
-        method: 'POST',
+      if (isOffline) {
 
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        throw new Error('Offline Mode')
 
-        body: JSON.stringify({
-          message: currentInput,
-          location: location,
-        }),
+      }
 
-      })
+      const response = await fetch(
+        `${API}/chat`,
+        {
+
+          method: 'POST',
+
+          headers: {
+            'Content-Type': 'application/json',
+          },
+
+          body: JSON.stringify({
+            message: currentInput,
+            location: location,
+          }),
+
+        }
+      )
 
       const data = await response.json()
 
-      setMessages([
+      setMessages((prev) => [
 
-        {
-          sender: 'user',
-          text: currentInput,
-        },
+        ...prev,
 
         {
           sender: 'bot',
           data: data.data || null,
-          text: data.answer || 'No response found.',
+          text:
+            data.answer ||
+            'No response found.',
         },
 
       ])
 
     } catch (error) {
 
-      setMessages([
+      setIsOffline(true)
+
+      setMessages((prev) => [
+
+        ...prev,
 
         {
           sender: 'bot',
-          text: '❌ Failed to connect to backend.',
+
+          text:
+            '⚠ Offline Mode Enabled\n\nDriveLegal could not connect to live legal servers.\n\nPreviously loaded legal resources remain accessible.',
         },
 
       ])
@@ -105,13 +138,36 @@ export default function ChatWindow() {
 
     <div className="min-h-screen bg-[#0f1220] text-white flex flex-col">
 
+      {/* OFFLINE BANNER */}
+
+      {isOffline && (
+
+        <div
+          className="
+            fixed
+            top-0
+            left-0
+            w-full
+            bg-orange-500
+            text-white
+            text-center
+            py-3
+            font-bold
+            z-[9999]
+          "
+        >
+          ⚠ Offline Mode Enabled
+        </div>
+
+      )}
+
       {/* HEADER */}
 
       <div className="border-b border-white/10 bg-[#0f1220]">
 
         <div className="max-w-6xl mx-auto px-6 py-8">
 
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center gap-4">
 
             <h1 className="text-5xl md:text-7xl font-bold mb-4">
               🚦 DriveLegal
@@ -121,6 +177,8 @@ export default function ChatWindow() {
               AI Traffic Law Assistant
             </p>
 
+            {/* LOCATION */}
+
             <div className="flex items-center gap-3 flex-wrap justify-center">
 
               <span className="text-lg text-gray-300">
@@ -129,7 +187,10 @@ export default function ChatWindow() {
 
               <select
                 value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                onChange={(e) =>
+                  setLocation(e.target.value)
+                }
+
                 className="
                   bg-[#1b2138]
                   border
@@ -141,13 +202,42 @@ export default function ChatWindow() {
                   outline-none
                 "
               >
+
                 <option>Tamil Nadu</option>
                 <option>Delhi</option>
                 <option>Karnataka</option>
                 <option>Maharashtra</option>
+                <option>UK</option>
+
               </select>
 
             </div>
+
+            {/* OFFLINE BUTTON */}
+
+            <button
+              onClick={() =>
+                setIsOffline(!isOffline)
+              }
+
+              className="
+                mt-4
+                bg-orange-500
+                hover:bg-orange-600
+                px-5
+                py-3
+                rounded-xl
+                text-white
+                font-semibold
+                transition
+              "
+            >
+
+              {isOffline
+                ? 'Disable Offline Simulation'
+                : 'Simulate Offline Mode'}
+
+            </button>
 
           </div>
 
@@ -165,6 +255,7 @@ export default function ChatWindow() {
 
             <div
               key={idx}
+
               className={`flex w-full ${
                 m.sender === 'user'
                   ? 'justify-end'
@@ -212,6 +303,8 @@ export default function ChatWindow() {
                   "
                 >
 
+                  {/* TITLE */}
+
                   <h2
                     className="
                       text-3xl
@@ -223,6 +316,8 @@ export default function ChatWindow() {
                     🚦 {m.data?.offence}
                   </h2>
 
+                  {/* GRID */}
+
                   <div
                     className="
                       grid
@@ -231,6 +326,8 @@ export default function ChatWindow() {
                       gap-6
                     "
                   >
+
+                    {/* SECTION */}
 
                     <div className="bg-[#242c49] p-5 rounded-2xl">
 
@@ -244,13 +341,15 @@ export default function ChatWindow() {
 
                     </div>
 
+                    {/* FINE */}
+
                     <div className="bg-[#242c49] p-5 rounded-2xl">
 
                       <p className="text-gray-400 mb-2">
                         💰 Fine
                       </p>
 
-                      <p className="text-3xl font-bold mt-2">
+                      <p className="text-2xl font-bold">
 
                         {typeof m.data?.fine === 'object'
                           ? m.data?.fine?.first_offence
@@ -260,21 +359,12 @@ export default function ChatWindow() {
 
                     </div>
 
+                    {/* SEVERITY */}
+
                     <div className="bg-[#242c49] p-5 rounded-2xl">
 
                       <p className="text-gray-400 mb-2">
                         ⚠️ Severity
-                        <div className="bg-[#242c49] p-5 rounded-2xl">
-
-                          <p className="text-gray-400 mb-2">
-                            🚨 AI Risk Score
-                          </p>
-
-                          <p className="text-xl font-bold text-red-400">
-                            {m.data?.risk_score}
-                          </p>
-
-                        </div>
                       </p>
 
                       <p className="text-xl font-bold uppercase">
@@ -282,6 +372,22 @@ export default function ChatWindow() {
                       </p>
 
                     </div>
+
+                    {/* RISK SCORE */}
+
+                    <div className="bg-[#242c49] p-5 rounded-2xl">
+
+                      <p className="text-gray-400 mb-2">
+                        🚨 AI Risk Score
+                      </p>
+
+                      <p className="text-xl font-bold text-red-400">
+                        {m.data?.risk_score}
+                      </p>
+
+                    </div>
+
+                    {/* STATE */}
 
                     <div className="bg-[#242c49] p-5 rounded-2xl">
 
@@ -326,26 +432,33 @@ export default function ChatWindow() {
                       "
                     >
                       {m.data?.description}
-                      <div
-                        className="
-                          bg-blue-500/10
-                          border
-                          border-blue-500
-                          p-5
-                          rounded-2xl
-                          mt-5
-                        "
-                      >
+                    </p>
 
-                        <p className="text-blue-300 font-bold mb-2">
-                          📚 Verified Source
-                        </p>
+                  </div>
 
-                        <p className="text-gray-200">
-                          {m.data?.source}
-                        </p>
+                  {/* VERIFIED SOURCE */}
 
-                      </div>
+                  <div
+                    className="
+                      bg-blue-500/10
+                      border
+                      border-blue-500
+                      p-5
+                      rounded-2xl
+                      mt-5
+                    "
+                  >
+
+                    <p className="text-blue-300 font-bold mb-2">
+                      📚 Verified Source
+                    </p>
+
+                    <p className="text-gray-200">
+
+                      {typeof m.data?.source === 'object'
+                        ? m.data?.source?.name
+                        : m.data?.source}
+
                     </p>
 
                   </div>
@@ -478,7 +591,11 @@ export default function ChatWindow() {
 
               <button
                 key={idx}
-                onClick={() => setInput(suggestion)}
+
+                onClick={() =>
+                  setInput(suggestion)
+                }
+
                 className="
                   bg-[#1b2138]
                   border
@@ -498,6 +615,7 @@ export default function ChatWindow() {
             ))}
 
           </div>
+
           {/* RECENT SEARCHES */}
 
           {history.length > 0 && (
@@ -514,7 +632,11 @@ export default function ChatWindow() {
 
                   <button
                     key={idx}
-                    onClick={() => setInput(item)}
+
+                    onClick={() =>
+                      setInput(item)
+                    }
+
                     className="
                       bg-[#242c49]
                       border
@@ -535,7 +657,7 @@ export default function ChatWindow() {
               </div>
 
             </div>
-        
+
           )}
 
           {/* INPUT */}
@@ -544,9 +666,15 @@ export default function ChatWindow() {
 
             <input
               type="text"
+
               placeholder="Ask about traffic fines..."
+
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+
+              onChange={(e) =>
+                setInput(e.target.value)
+              }
+
               onKeyDown={(e) => {
 
                 if (e.key === 'Enter') {
@@ -554,6 +682,7 @@ export default function ChatWindow() {
                 }
 
               }}
+
               className="
                 flex-1
                 bg-[#1b2138]
@@ -571,7 +700,9 @@ export default function ChatWindow() {
 
             <button
               onClick={sendMessage}
+
               disabled={loading}
+
               className="
                 bg-gradient-to-r
                 from-pink-600
@@ -585,7 +716,9 @@ export default function ChatWindow() {
                 disabled:opacity-50
               "
             >
+
               {loading ? '...' : 'Send'}
+
             </button>
 
           </div>

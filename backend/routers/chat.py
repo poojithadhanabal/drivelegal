@@ -13,25 +13,9 @@ router = APIRouter()
 # BASE DIRECTORY
 # ================================
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-
-# ================================
-# LOAD DATABASES
-# ================================
-
-with open(
-    os.path.join(BASE_DIR, "data/legal_database/central_laws.json"),
-    "r",
-    encoding="utf-8"
-) as f:
-    CENTRAL_RULES = json.load(f)
-
-with open(
-    os.path.join(BASE_DIR, "data/legal_database/tamilnadu_rules.json"),
-    "r",
-    encoding="utf-8"
-) as f:
-    TN_RULES = json.load(f)
+BASE_DIR = os.path.dirname(
+    os.path.dirname(__file__)
+)
 
 # ================================
 # CACHE
@@ -44,102 +28,79 @@ _cache = {}
 # ================================
 
 class ChatRequest(BaseModel):
+
     message: str
     location: str = "Tamil Nadu"
 
 # ================================
-# GET DATABASE
+# DATABASE SELECTOR
 # ================================
 
 def get_database(location):
 
-        location_lower = location.lower()
-
-        if location_lower == "tamil nadu":
-
-            database_path = os.path.join(
-                BASE_DIR,
-                "data/legal_database/tamilnadu_rules.json"
-            )
-
-        elif location_lower == "delhi":
-
-            database_path = os.path.join(
-                BASE_DIR,
-                "data/legal_database/delhi_rules.json"
-            )
-
-        elif location_lower == "karnataka":
-
-            database_path = os.path.join(
-                BASE_DIR,
-                "data/legal_database/karnataka_rules.json"
-            )
-
-        elif location_lower == "maharashtra":
-
-            database_path = os.path.join(
-                BASE_DIR,
-                "data/legal_database/maharashtra_rules.json"
-            )
-
-        else:
-
-            database_path = os.path.join(
-                BASE_DIR,
-                "data/legal_database/central_laws.json"
-            )
-
-# ================================
-# SEARCH ENGINE
-# ================================
-
-def find_offence(user_message, location="Tamil Nadu"):
-
-    msg = user_message.lower()
-    print("USER LOCATION:", location)
-
-    # LOAD DATABASE
     location_lower = location.lower()
 
     if location_lower == "tamil nadu":
 
-        database_path = os.path.join(
+        return os.path.join(
             BASE_DIR,
             "data/legal_database/tamilnadu_rules.json"
         )
 
     elif location_lower == "delhi":
 
-        database_path = os.path.join(
+        return os.path.join(
             BASE_DIR,
             "data/legal_database/delhi_rules.json"
         )
 
     elif location_lower == "karnataka":
 
-        database_path = os.path.join(
+        return os.path.join(
             BASE_DIR,
             "data/legal_database/karnataka_rules.json"
         )
 
     elif location_lower == "maharashtra":
 
-        database_path = os.path.join(
+        return os.path.join(
             BASE_DIR,
             "data/legal_database/maharashtra_rules.json"
         )
 
-    else:
+    elif location_lower in [
+        "uk",
+        "united kingdom"
+    ]:
 
-        database_path = os.path.join(
+        return os.path.join(
             BASE_DIR,
-            "data/legal_database/central_laws.json"
+            "data/legal_database/uk_rules.json"
         )
 
-    print("DATABASE PATH:", database_path)
+    return os.path.join(
+        BASE_DIR,
+        "data/legal_database/central_laws.json"
+    )
 
-    with open(database_path, "r", encoding="utf-8") as f:
+# ================================
+# SEARCH ENGINE
+# ================================
+
+def find_offence(
+    user_message,
+    location="Tamil Nadu"
+):
+
+    msg = user_message.lower()
+
+    database_path = get_database(location)
+
+    with open(
+        database_path,
+        "r",
+        encoding="utf-8"
+    ) as f:
 
         legal_data = json.load(f)
 
@@ -156,31 +117,54 @@ def find_offence(user_message, location="Tamil Nadu"):
         ).lower()
 
         # DIRECT MATCH
-        if offence_name in msg:
+
+        if offence_name.replace(
+            " ",
+            ""
+        ) in msg.replace(
+            " ",
+            ""
+        ):
+
             score += 10
 
         # KEYWORD MATCHES
-        for keyword in offence.get("keywords", []):
+
+        for keyword in offence.get(
+            "keywords",
+            []
+        ):
 
             keyword = keyword.lower()
 
-            if keyword in msg:
+            if keyword.replace(
+                " ",
+                ""
+            ) in msg.replace(
+                " ",
+                ""
+            ):
+
                 score += 5
 
-        # DESCRIPTION WORD MATCHES
+        # DESCRIPTION MATCHES
+
         description = offence.get(
             "description",
             ""
         ).lower()
 
-        desc_words = description.split()
+        for word in description.split():
 
-        for word in desc_words:
+            if (
+                len(word) > 4
+                and word in msg
+            ):
 
-            if len(word) > 4 and word in msg:
                 score += 1
 
         # BEST MATCH
+
         if score > best_score:
 
             best_score = score
@@ -193,6 +177,9 @@ def find_offence(user_message, location="Tamil Nadu"):
 # ================================
 
 SAFETY_TIPS = {
+
+    "Helmet Violation":
+        "Always wear a certified helmet while riding.",
 
     "Riding Without Helmet":
         "Always wear a BIS-certified helmet while riding.",
@@ -219,6 +206,9 @@ SAFETY_TIPS = {
 
 LEGAL_ADVICE = {
 
+    "Helmet Violation":
+        "Helmet violations may lead to penalties and increased accident risk.",
+
     "Riding Without Helmet":
         "Repeated violations may attract stricter penalties.",
 
@@ -237,7 +227,15 @@ LEGAL_ADVICE = {
     "Dangerous Driving":
         "Dangerous driving can lead to licence suspension."
 }
-risk_scores = {
+
+# ================================
+# AI RISK SCORES
+# ================================
+
+RISK_SCORES = {
+
+    "Helmet Violation":
+        "Medium Risk",
 
     "Riding Without Helmet":
         "Medium Risk",
@@ -259,7 +257,7 @@ risk_scores = {
 }
 
 # ================================
-# FORMAT RESPONSE
+# RESPONSE FORMATTER
 # ================================
 
 def format_response(data):
@@ -268,12 +266,9 @@ def format_response(data):
 
         return {
 
-            "type": "text",
-
             "summary":
                 (
-                    "❌ Sorry, I could not find verified traffic law "
-                    "information for this query.\n\n"
+                    "❌ Sorry, I could not find verified traffic law information.\n\n"
 
                     "Try asking about:\n"
                     "• Helmet violation\n"
@@ -287,51 +282,76 @@ def format_response(data):
             "data": None
         }
 
-    offence_name = data.get("offence")
+    offence_name = data.get(
+        "offence"
+    )
 
     response = {
-        "offence": offence_name,
-        "section": data.get("section"),
-        "fine": data.get("fine"),
-        "severity": data.get("severity"),
-        "vehicleType": data.get("vehicleType"),
-        "state": data.get("state"),
-        "source": data.get("source"),
-        "description": data.get("description"),
+
+        "offence":
+            offence_name,
+
+        "section":
+            data.get("section"),
+
+        "fine":
+            data.get("fine"),
+
+        "severity":
+            data.get("severity"),
+
+        "vehicleType":
+            data.get("vehicleType"),
+
+        "state":
+            data.get("state"),
+
+        "source":
+            data.get("source"),
+
+        "description":
+            data.get("description"),
+
         "safety_tip":
             SAFETY_TIPS.get(
                 offence_name,
                 "Follow traffic rules for safer roads."
             ),
+
         "legal_advice":
             LEGAL_ADVICE.get(
                 offence_name,
                 "Always follow Motor Vehicle Act regulations."
             ),
-        "risk_score": 
-            risk_scores.get(
+
+        "risk_score":
+            RISK_SCORES.get(
                 offence_name,
                 "Unknown Risk"
             )
     }
 
     return {
-        "answer": (
-            f"🚦 {response['offence']}\n\n"
-            f"📘 Section: {response['section']}\n"
-            f"💰 Fine: ₹{response['fine']}\n"
-            f"⚠ Severity: {response['severity']}\n"
-            f"🚗 Vehicle Type: {response['vehicleType']}\n"
-            f"📍 State: {response['state']}\n\n"
-            f"📝 Description:\n"
-            f"{response['description']}\n\n"
-            f"🛡 Safety Tip:\n"
-            f"{response['safety_tip']}\n\n"
-            f"⚖ Legal Advice:\n"
-            f"{response['legal_advice']}"
-        ),
 
-        "data": response
+        "summary":
+            (
+                f"🚦 {response['offence']}\n\n"
+
+                f"📘 Section: "
+                f"{response['section']}\n"
+
+                f"💰 Fine: "
+                f"{response['fine']}\n"
+
+                f"⚠ Severity: "
+                f"{response['severity']}\n"
+
+                f"📍 State: "
+                f"{response['state']}"
+            ),
+
+        "data":
+            response
     }
 
 # ================================
@@ -339,54 +359,85 @@ def format_response(data):
 # ================================
 
 @router.post("/chat")
+
 async def chat(req: ChatRequest):
 
     try:
 
         cache_key = hashlib.md5(
-            f"{req.message.lower()}-{req.location}".encode()
+
+            f"{req.message.lower()}-{req.location}"
+            .encode()
+
         ).hexdigest()
 
-        # Return cached response
-        if cache_key in _cache:
-            return _cache[cache_key]
+        # RETURN CACHE
 
-        # Find offence
+        if cache_key in _cache:
+
+            cached = _cache[cache_key]
+
+            cached["cached"] = True
+
+            return cached
+
+        # SEARCH OFFENCE
+
         offence = find_offence(
             req.message,
             req.location
         )
 
-        # Format response
-        formatted = format_response(offence)
+        # FORMAT
+
+        formatted = format_response(
+            offence
+        )
 
         response = {
 
             "answer":
                 formatted.get(
-                    "summary",
-                    "No response available."
+                    "summary"
                 ),
 
             "data":
                 formatted.get(
-                    "data",
-                    None
+                    "data"
                 ),
 
-            "location": req.location,
+            "location":
+                req.location,
 
-            "status": "ok"
+            "cached":
+                False,
+
+            "status":
+                "ok"
         }
 
-        # Save cache
+        # SAVE CACHE
+
         _cache[cache_key] = response
 
         return response
 
     except Exception as e:
 
+        # OFFLINE / LOW NETWORK FALLBACK
+
         return {
-            "answer": f"❌ Backend Error: {str(e)}",
-            "status": "error"
+
+            "answer":
+                (
+                    "⚠ DriveLegal is experiencing low-network connectivity.\n\n"
+
+                    "Previously loaded legal resources may still remain accessible."
+                ),
+
+            "data": None,
+
+            "offline_mode": True,
+
+            "status": "fallback"
         }
