@@ -52,7 +52,7 @@ export default function Calculator() {
       }
 
       const response = await fetch(
-        'http://localhost:8000/api/challan',
+        'https://drivelegal-backend.onrender.com/api/challan',
         {
 
           method: 'POST',

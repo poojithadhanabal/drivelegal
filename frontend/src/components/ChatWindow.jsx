@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const API = 'http://localhost:8000/api'
+const API = 'https://drivelegal-backend.onrender.com/api'
 
 export default function ChatWindow() {
 
