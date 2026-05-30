@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-const API = 'https://drivelegal-backend.onrender.com/api'
-
+const API = 'http://localhost:8000/api'
 export default function ChatWindow() {
 
   const [messages, setMessages] = useState([
