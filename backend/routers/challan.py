@@ -87,6 +87,23 @@ def resolve_fine(offence: dict, is_repeat: bool):
         note = ""
 
     numeric = extract_numeric_fine(raw)
+
+    # AUTO MULTIPLIER IF
+    # REPEAT VALUE NOT PROVIDED
+
+    if (
+        is_repeat
+        and isinstance(fine, dict)
+        and "repeat_offence" not in fine
+    ):
+
+        numeric = int(numeric * 2)
+
+        raw = str(numeric)
+
+        note = (
+            "Repeat offence multiplier applied"
+        )
     return str(raw), numeric, note
 
 # ================================
@@ -243,7 +260,7 @@ async def calculate_challan(req: ChallanRequest):
         return {
             "violation":        offence.get("offence"),
             "vehicle_type":     offence.get("vehicleType", req.vehicle_type),
-            "state":            offence.get("state", req.state),
+            "state":            req.state,
             "section":          offence.get("section", "Not specified"),
             "severity":         severity,
             "risk_score":       risk_score,

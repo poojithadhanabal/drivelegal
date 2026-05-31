@@ -1,179 +1,518 @@
 import { useState } from 'react'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API =
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:8000/api'
 
-const VIOLATIONS = [
-  { name: 'Helmet Violation',      icon: '🪖', severity: 'high'   },
-  { name: 'Triple Riding',         icon: '🏍️', severity: 'medium' },
-  { name: 'Mobile While Driving',  icon: '📱', severity: 'high'   },
-  { name: 'No Insurance',          icon: '📋', severity: 'high'   },
-  { name: 'Seat Belt Violation',   icon: '🔒', severity: 'medium' },
-  { name: 'Drunk Driving',         icon: '🍺', severity: 'severe' },
-  { name: 'Overspeeding',          icon: '⚡', severity: 'high'   },
-  { name: 'Red Light Jump',        icon: '🔴', severity: 'high'   },
+const VEHICLES = [
+  'Two-Wheeler',
+  'Car / Jeep / Van',
+  'Bus / Truck (HMV)',
+  'Auto Rickshaw',
 ]
 
-const VEHICLES = ['Two-Wheeler', 'Car / Jeep / Van', 'Bus / Truck (HMV)', 'Auto Rickshaw']
-const STATES   = ['Tamil Nadu', 'Delhi', 'Karnataka', 'Maharashtra', 'National']
+const STATES = [
+  'Tamil Nadu',
+  'Delhi',
+  'Karnataka',
+  'Maharashtra',
+  'National',
+]
 
-const SEVERITY_COLORS = {
-  severe: 'sev-severe',
-  high:   'sev-high',
-  medium: 'sev-medium',
-  low:    'sev-low',
-}
+const VIOLATIONS = [
+  'Helmet Violation',
+  'Triple Riding',
+  'Mobile While Driving',
+  'No Insurance',
+  'Seat Belt Violation',
+  'Drunk Driving',
+  'Overspeeding',
+  'Red Light Jump',
+]
 
-export default function Calculator({ location, setIsOnline }) {
-  const [vehicle,       setVehicle]       = useState('Two-Wheeler')
-  const [state,         setState]         = useState(location || 'Tamil Nadu')
-  const [repeatOffence, setRepeatOffence] = useState(false)
-  const [result,        setResult]        = useState(null)
-  const [loading,       setLoading]       = useState(null)
-  const [error,         setError]         = useState('')
+export default function Calculator({
 
-  const calculate = async (offence) => {
-    setLoading(offence.name)
+  location,
+  setIsOnline,
+
+}) {
+
+  const [vehicle, setVehicle] =
+    useState('Two-Wheeler')
+
+  const [state, setState] =
+    useState(location || 'Tamil Nadu')
+
+  const [violation, setViolation] =
+    useState('Helmet Violation')
+
+  const [repeatOffence, setRepeatOffence] =
+    useState(false)
+
+  const [selectedOffences, setSelectedOffences] =
+    useState([])
+
+  const [loading, setLoading] =
+    useState(false)
+
+  const [error, setError] =
+    useState('')
+
+  // ========================================
+  // ADD OFFENCE
+  // ========================================
+
+  const addOffence = async () => {
+
+    setLoading(true)
     setError('')
-    setResult(null)
 
     try {
-      const res  = await fetch(`${API}/challan`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          violation:   offence.name,
-          vehicle_type: vehicle,
-          state,
-          is_repeat:   repeatOffence,
-        }),
-      })
+
+      const res = await fetch(
+        `${API}/challan`,
+        {
+
+          method: 'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json',
+          },
+
+          body: JSON.stringify({
+
+            violation,
+
+            vehicle_type: vehicle,
+
+            state,
+
+            is_repeat: repeatOffence,
+          }),
+        }
+      )
+
       const data = await res.json()
 
       if (data.error) {
+
         setError(data.error)
+
       } else {
-        setResult({ ...data, icon: offence.icon })
+
+        setSelectedOffences(prev => [
+
+          ...prev,
+
+          data,
+        ])
       }
+
     } catch {
+
       setIsOnline?.(false)
-      setResult({
-        violation:   offence.name,
-        icon:        offence.icon,
-        law_section: 'Offline Mode',
-        base_fine:   0,
-        court_fee:   0,
-        total:       0,
-        state:       'Unavailable',
-        notes:       '⚠️ DriveLegal is offline. Connect to the internet for live data.',
-      })
+
+      setError(
+        'DriveLegal is offline.'
+      )
+
     }
-    setLoading(null)
+
+    setLoading(false)
   }
 
+  // ========================================
+  // REMOVE OFFENCE
+  // ========================================
+
+  const removeOffence = (index) => {
+
+    const updated = [...selectedOffences]
+
+    updated.splice(index, 1)
+
+    setSelectedOffences(updated)
+  }
+
+  // ========================================
+  // TOTAL
+  // ========================================
+
+  const grandTotal =
+    selectedOffences.reduce(
+
+      (sum, item) => sum + item.total,
+
+      0
+    )
+
   return (
+
     <div className="calc-root">
 
-      {/* ── HEADER ── */}
+      {/* HEADER */}
+
       <div className="calc-header">
+
         <div>
-          <h1 className="calc-title">Challan Calculator</h1>
-          <p className="calc-subtitle">Select a violation to instantly calculate the fine</p>
+
+          <h1 className="calc-title">
+            Challan Calculator
+          </h1>
+
+          <p className="calc-subtitle">
+            Calculate traffic fines instantly
+          </p>
+
         </div>
+
       </div>
 
-      {/* ── FILTERS ── */}
+      {/* FILTERS */}
+
       <div className="calc-filters">
-        <div className="calc-filter-group">
-          <label className="calc-filter-label">Vehicle Type</label>
-          <select
-            className="dl-select"
-            value={vehicle}
-            onChange={e => setVehicle(e.target.value)}
-          >
-            {VEHICLES.map(v => <option key={v}>{v}</option>)}
-          </select>
-        </div>
+
+        {/* VEHICLE */}
 
         <div className="calc-filter-group">
-          <label className="calc-filter-label">State</label>
+
+          <label className="calc-filter-label">
+            Vehicle Type
+          </label>
+
           <select
             className="dl-select"
-            value={state}
-            onChange={e => setState(e.target.value)}
+
+            value={vehicle}
+
+            onChange={(e) =>
+              setVehicle(e.target.value)
+            }
           >
-            {STATES.map(s => <option key={s}>{s}</option>)}
+
+            {VEHICLES.map(v => (
+
+              <option key={v}>
+                {v}
+              </option>
+
+            ))}
+
           </select>
+
         </div>
+
+        {/* STATE */}
+
+        <div className="calc-filter-group">
+
+          <label className="calc-filter-label">
+            State
+          </label>
+
+          <select
+            className="dl-select"
+
+            value={state}
+
+            onChange={(e) =>
+              setState(e.target.value)
+            }
+          >
+
+            {STATES.map(s => (
+
+              <option key={s}>
+                {s}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* OFFENCE */}
+
+        <div className="calc-filter-group">
+
+          <label className="calc-filter-label">
+            Offence
+          </label>
+
+          <select
+            className="dl-select"
+
+            value={violation}
+
+            onChange={(e) =>
+              setViolation(e.target.value)
+            }
+          >
+
+            {VIOLATIONS.map(v => (
+
+              <option key={v}>
+                {v}
+              </option>
+
+            ))}
+
+          </select>
+
+        </div>
+
+        {/* REPEAT */}
 
         <label className="calc-repeat-toggle">
+
           <input
             type="checkbox"
+
             checked={repeatOffence}
-            onChange={e => setRepeatOffence(e.target.checked)}
+
+            onChange={(e) =>
+              setRepeatOffence(
+                e.target.checked
+              )
+            }
           />
+
           <span className="calc-repeat-label">
+
             Repeat offence
-            <span className="calc-repeat-note">(higher fine)</span>
+
+            <span className="calc-repeat-note">
+              (higher fine)
+            </span>
+
           </span>
+
         </label>
+
       </div>
 
-      {/* ── VIOLATION GRID ── */}
-      <div className="calc-grid">
-        {VIOLATIONS.map((v, i) => (
-          <button
-            key={i}
-            className={`calc-card ${SEVERITY_COLORS[v.severity]} ${loading === v.name ? 'loading' : ''}`}
-            onClick={() => calculate(v)}
-            disabled={!!loading}
-          >
-            <span className="calc-card-icon">{v.icon}</span>
-            <span className="calc-card-name">{v.name}</span>
-            <span className={`calc-card-badge ${v.severity}`}>{v.severity}</span>
-            {loading === v.name && <span className="calc-card-spinner">⏳</span>}
-          </button>
-        ))}
-      </div>
+      {/* BUTTON */}
 
-      {/* ── ERROR ── */}
+      <button
+        className="calc-add-btn"
+
+        onClick={addOffence}
+
+        disabled={loading}
+      >
+
+        {loading
+
+          ? 'Calculating...'
+
+          : 'Add Offence'}
+
+      </button>
+
+      {/* ERROR */}
+
       {error && (
-        <div className="calc-error">{error}</div>
+
+        <div className="calc-error">
+          {error}
+        </div>
+
       )}
 
-      {/* ── RESULT CARD ── */}
-      {result && (
+      {/* OFFENCE LIST */}
+
+      {selectedOffences.length > 0 && (
+
         <div className="calc-result">
-          <div className="calc-result-header">
-            <span className="calc-result-icon">{result.icon}</span>
-            <div>
-              <div className="calc-result-title">{result.violation}</div>
-              <div className="calc-result-meta">{result.state} · {repeatOffence ? 'Repeat offence' : 'First offence'}</div>
+
+          <h2 className="calc-result-title">
+            Challan Summary
+          </h2>
+
+          {selectedOffences.map((item, index) => (
+
+            <div
+              key={index}
+
+              className="calc-result-card"
+            >
+
+              <div className="
+                flex
+                justify-between
+                items-center
+              ">
+
+                <div>
+
+                  <h3 className="
+                    text-xl
+                    font-semibold
+                  ">
+                    {item.violation}
+                  </h3>
+
+                  <p className="
+                    text-sm
+                    opacity-70
+                  ">
+                    {item.state}
+                  </p>
+
+                </div>
+
+                <button
+                  onClick={() =>
+                    removeOffence(index)
+                  }
+
+                  className="
+                    text-red-400
+                    text-sm
+                  "
+                >
+                  Remove
+                </button>
+
+              </div>
+
+              <div className="
+                mt-4
+                space-y-2
+              ">
+
+                <div className="
+                  flex
+                  justify-between
+                ">
+                  <span>
+                    Base Fine
+                  </span>
+
+                  <span>
+                    ₹{item.base_fine}
+                  </span>
+                </div>
+
+                <div className="
+                  flex
+                  justify-between
+                ">
+                  <span>
+                    Court Fee
+                  </span>
+
+                  <span>
+                    ₹{item.court_fee}
+                  </span>
+                </div>
+
+                <div className="
+                  flex
+                  justify-between
+                ">
+                  <span>
+                    Processing Fee
+                  </span>
+
+                  <span>
+                    ₹{item.processing_fee}
+                  </span>
+                </div>
+
+                <div className="
+                  flex
+                  justify-between
+                  font-bold
+                  text-green-400
+                  pt-2
+                ">
+                  <span>
+                    Total
+                  </span>
+
+                  <span>
+                    ₹{item.total}
+                  </span>
+                </div>
+
+              </div>
+
+              <div className="
+                mt-4
+                text-sm
+                opacity-80
+              ">
+
+                📘 Section:
+                {' '}
+                {item.section}
+
+              </div>
+
+              <div className="
+                mt-2
+                text-sm
+              ">
+
+                ⚠️
+                {' '}
+                {item.risk_score}
+
+              </div>
+
+              <div className="
+                mt-3
+                text-sm
+                opacity-80
+              ">
+
+                {item.description}
+
+              </div>
+
             </div>
+
+          ))}
+
+          {/* GRAND TOTAL */}
+
+          <div className="
+            mt-6
+            p-5
+            rounded-2xl
+            bg-[#182033]
+            border
+            border-green-500
+          ">
+
+            <div className="
+              flex
+              justify-between
+              items-center
+            ">
+
+              <span className="
+                text-xl
+                font-bold
+              ">
+                Grand Total
+              </span>
+
+              <span className="
+                text-3xl
+                font-bold
+                text-green-400
+              ">
+                ₹{grandTotal}
+              </span>
+
+            </div>
+
           </div>
 
-          <div className="calc-result-breakdown">
-            <div className="calc-result-row">
-              <span>Base fine</span>
-              <span>₹{result.base_fine?.toLocaleString()}</span>
-            </div>
-            <div className="calc-result-row">
-              <span>Court fee (~10%)</span>
-              <span>₹{result.court_fee?.toLocaleString()}</span>
-            </div>
-            <div className="calc-result-total">
-              <span>Total payable</span>
-              <span>₹{result.total?.toLocaleString()}</span>
-            </div>
-          </div>
-
-          {result.law_section && (
-            <div className="calc-result-section">
-              📘 {result.law_section}
-            </div>
-          )}
-          {result.notes && (
-            <div className="calc-result-notes">{result.notes}</div>
-          )}
         </div>
       )}
 

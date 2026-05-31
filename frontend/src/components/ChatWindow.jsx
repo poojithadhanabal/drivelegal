@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 
-const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API =
+  import.meta.env.VITE_API_URL ||
+  'http://localhost:8000/api'
 
 const SUGGESTIONS = [
   'Helmet violation fine in Tamil Nadu',
@@ -10,13 +12,38 @@ const SUGGESTIONS = [
   'Overspeeding fine in Delhi',
 ]
 
-export default function ChatWindow({ location, setIsOnline }) {
+// ✅ ONLY SUPPORTED STATES
+
+const SUPPORTED_STATES = [
+
+  'Tamil Nadu',
+
+  'Delhi',
+
+  'Karnataka',
+
+  'Maharashtra',
+
+  'UK',
+
+  'Central',
+]
+
+export default function ChatWindow({
+
+  location,
+  setLocation,
+  setIsOnline
+
+}) {
 
   const [messages, setMessages] = useState([
     {
       sender: 'bot',
+
       text:
-        `Hello! I'm DriveLegal — your AI traffic law assistant.\n\nAsk me about fines, challans, or road safety rules for ${location || 'India'}.`,
+        `Hello! I'm DriveLegal — your AI traffic law assistant.\n\nAsk me about fines, challans, or road safety rules.`,
+
       data: null,
     },
   ])
@@ -25,19 +52,112 @@ export default function ChatWindow({ location, setIsOnline }) {
   const [loading, setLoading] = useState(false)
   const [history, setHistory] = useState([])
 
+  const [
+    detectedLocation,
+    setDetectedLocation
+  ] = useState('')
+
   const bottomRef = useRef(null)
+
+  // =========================================
+  // AUTO SCROLL
+  // =========================================
 
   useEffect(() => {
 
     bottomRef.current?.scrollIntoView({
+
       behavior: 'smooth'
+
     })
 
   }, [messages, loading])
 
+  // =========================================
+  // LIVE LOCATION DETECTION
+  // =========================================
+
+  useEffect(() => {
+
+    if (!navigator.geolocation) return
+
+    navigator.geolocation.getCurrentPosition(
+
+      async (position) => {
+
+        try {
+
+          const lat =
+            position.coords.latitude
+
+          const lon =
+            position.coords.longitude
+
+          const response = await fetch(
+
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+
+          )
+
+          const data =
+            await response.json()
+
+          // ✅ RAW LOCATION
+
+          const rawState =
+            data.address.state
+
+          // ✅ FILTER UNSUPPORTED STATES
+
+          const detectedState =
+            SUPPORTED_STATES.includes(
+              rawState
+            )
+
+              ? rawState
+
+              : 'Central'
+
+          setDetectedLocation(
+            detectedState
+          )
+
+          // AUTO SET DROPDOWN
+
+          setLocation?.(
+            detectedState
+          )
+
+        } catch (err) {
+
+          console.log(
+            'Location detection failed'
+          )
+
+        }
+
+      },
+
+      () => {
+
+        console.log(
+          'Location permission denied'
+        )
+
+      }
+
+    )
+
+  }, [])
+
+  // =========================================
+  // SEND MESSAGE
+  // =========================================
+
   const sendMessage = async (text) => {
 
-    const msg = (text || input).trim()
+    const msg =
+      (text || input).trim()
 
     if (!msg || loading) return
 
@@ -45,7 +165,9 @@ export default function ChatWindow({ location, setIsOnline }) {
 
       msg,
 
-      ...prev.filter(h => h !== msg)
+      ...prev.filter(
+        h => h !== msg
+      )
 
     ].slice(0, 5))
 
@@ -65,23 +187,38 @@ export default function ChatWindow({ location, setIsOnline }) {
 
     try {
 
-      const res = await fetch(`${API}/chat`, {
+      const finalLocation =
 
-        method: 'POST',
+        location ||
+        detectedLocation ||
+        'Central'
 
-        headers: {
-          'Content-Type': 'application/json'
-        },
+      const res = await fetch(
 
-        body: JSON.stringify({
+        `${API}/chat`,
 
-          message: msg,
+        {
 
-          location,
-        }),
-      })
+          method: 'POST',
 
-      const data = await res.json()
+          headers: {
+
+            'Content-Type':
+              'application/json'
+          },
+
+          body: JSON.stringify({
+
+            message: msg,
+
+            location:
+              finalLocation,
+          }),
+        }
+      )
+
+      const data =
+        await res.json()
 
       setMessages(prev => [
 
@@ -113,7 +250,7 @@ export default function ChatWindow({ location, setIsOnline }) {
           sender: 'bot',
 
           text:
-            '⚠️ Could not connect to the server.\n\nDriveLegal is in offline mode. Previously cached legal data is still accessible via the Calculator.',
+            '⚠️ Could not connect to the server.\n\nDriveLegal is in offline mode.',
 
           data: null,
         }
@@ -138,8 +275,47 @@ export default function ChatWindow({ location, setIsOnline }) {
           </h1>
 
           <p className="chat-subtitle">
-            Powered by DriveLegal AI · Location: {location}
+
+            Powered by DriveLegal AI
+
+            {' · '}
+
+            Location:
+
+            {' '}
+
+            {location || 'Detecting...'}
+
           </p>
+
+          {/* LIVE LOCATION */}
+
+          {detectedLocation && (
+
+            <div
+              className="
+                mt-2
+                inline-flex
+                items-center
+                gap-2
+                px-3
+                py-1
+                rounded-full
+                bg-green-500/10
+                border
+                border-green-500/30
+                text-green-300
+                text-xs
+              "
+            >
+
+              📍 Live location detected:
+              {' '}
+              {detectedLocation}
+
+            </div>
+
+          )}
 
         </div>
 
@@ -168,19 +344,26 @@ export default function ChatWindow({ location, setIsOnline }) {
 
             )}
 
-            <div className={`chat-bubble ${m.sender}`}>
-
-              {/* LEGAL CARD */}
+            <div
+              className={`chat-bubble ${m.sender}`}
+            >
 
               {m.data ? (
 
                 <div className="legal-card">
 
+                  {/* TITLE */}
+
                   <div className="legal-card-title">
 
-                    <span className="legal-offence-badge">
+                    <span
+                      className="
+                        legal-offence-badge
+                      "
+                    >
 
-                      {m.data.severity || 'Violation'}
+                      {m.data.severity ||
+                        'Violation'}
 
                     </span>
 
@@ -194,11 +377,19 @@ export default function ChatWindow({ location, setIsOnline }) {
 
                     <div className="legal-cell">
 
-                      <span className="legal-cell-label">
+                      <span
+                        className="
+                          legal-cell-label
+                        "
+                      >
                         Section
                       </span>
 
-                      <span className="legal-cell-value">
+                      <span
+                        className="
+                          legal-cell-value
+                        "
+                      >
                         {m.data.section}
                       </span>
 
@@ -206,14 +397,26 @@ export default function ChatWindow({ location, setIsOnline }) {
 
                     <div className="legal-cell">
 
-                      <span className="legal-cell-label">
+                      <span
+                        className="
+                          legal-cell-label
+                        "
+                      >
                         Fine (1st)
                       </span>
 
-                      <span className="legal-cell-value fine">
+                      <span
+                        className="
+                          legal-cell-value fine
+                        "
+                      >
 
-                        {typeof m.data.fine === 'object'
-                          ? m.data.fine.first_offence
+                        {typeof m.data.fine ===
+                        'object'
+
+                          ? m.data.fine
+                              .first_offence
+
                           : m.data.fine}
 
                       </span>
@@ -222,11 +425,19 @@ export default function ChatWindow({ location, setIsOnline }) {
 
                     <div className="legal-cell">
 
-                      <span className="legal-cell-label">
+                      <span
+                        className="
+                          legal-cell-label
+                        "
+                      >
                         Risk Score
                       </span>
 
-                      <span className="legal-cell-value risk">
+                      <span
+                        className="
+                          legal-cell-value risk
+                        "
+                      >
                         {m.data.risk_score}
                       </span>
 
@@ -234,11 +445,19 @@ export default function ChatWindow({ location, setIsOnline }) {
 
                     <div className="legal-cell">
 
-                      <span className="legal-cell-label">
+                      <span
+                        className="
+                          legal-cell-label
+                        "
+                      >
                         State
                       </span>
 
-                      <span className="legal-cell-value">
+                      <span
+                        className="
+                          legal-cell-value
+                        "
+                      >
                         {m.data.state}
                       </span>
 
@@ -282,7 +501,9 @@ export default function ChatWindow({ location, setIsOnline }) {
                           tracking-wide
                         "
                       >
+
                         🤖 AI Explanation
+
                       </p>
 
                       <p
@@ -292,24 +513,31 @@ export default function ChatWindow({ location, setIsOnline }) {
                           whitespace-pre-wrap
                         "
                       >
+
                         {m.text}
+
                       </p>
 
                     </div>
 
                   )}
 
-                  {/* TAGS */}
+                  {/* SOURCE */}
 
                   <div className="legal-tags-row">
 
                     {m.data.source && (
 
-                      <div className="legal-tag blue">
+                      <div
+                        className="
+                          legal-tag blue
+                        "
+                      >
 
                         📚 {
 
-                          typeof m.data.source === 'object'
+                          typeof m.data.source ===
+                          'object'
 
                             ? m.data.source.name
 
@@ -321,23 +549,11 @@ export default function ChatWindow({ location, setIsOnline }) {
 
                     )}
 
-                    {m.data.safety_tip && (
-
-                      <div className="legal-tag green">
-
-                        ✅ {m.data.safety_tip}
-
-                      </div>
-
-                    )}
-
                   </div>
 
                 </div>
 
               ) : (
-
-                /* NORMAL CHAT BUBBLE */
 
                 <span className="chat-text">
 
@@ -456,7 +672,8 @@ export default function ChatWindow({ location, setIsOnline }) {
           }
 
           onKeyDown={e =>
-            e.key === 'Enter' && sendMessage()
+            e.key === 'Enter' &&
+            sendMessage()
           }
         />
 

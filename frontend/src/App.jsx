@@ -1,108 +1,352 @@
 import { useState } from 'react'
+
 import ChatWindow from './components/ChatWindow'
 import Calculator from './components/Calculator'
 import Dashboard from './components/Dashboard'
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState('chat')
-  const [location, setLocation] = useState(
-    localStorage.getItem('drivelegal_location') || 'Tamil Nadu'
-  )
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
+// ✅ ONLY SUPPORTED STATES
 
-  const STATES = [
-    'National','Tamil Nadu','Delhi','Karnataka',
-    'Maharashtra','Kerala','Telangana','Rajasthan','UK','UAE'
-  ]
+const STATES = [
+
+  'Central',
+
+  'Tamil Nadu',
+
+  'Delhi',
+
+  'Karnataka',
+
+  'Maharashtra',
+
+  'UK',
+]
+
+export default function App() {
+
+  const [activeTab, setActiveTab] =
+    useState('chat')
+
+  const [location, setLocation] =
+    useState(
+
+      localStorage.getItem(
+        'drivelegal_location'
+      ) || 'Central'
+
+    )
+
+  const [isOnline, setIsOnline] =
+    useState(navigator.onLine)
+
+  // ========================================
+  // LOCATION CHANGE
+  // ========================================
 
   const handleLocationChange = (val) => {
+
     setLocation(val)
-    localStorage.setItem('drivelegal_location', val)
-    localStorage.setItem('drivelegal_cache_date', new Date().toLocaleDateString())
+
+    localStorage.setItem(
+      'drivelegal_location',
+      val
+    )
+
+    localStorage.setItem(
+
+      'drivelegal_cache_date',
+
+      new Date()
+        .toLocaleDateString()
+    )
   }
 
+  // ========================================
+  // SIDEBAR TABS
+  // ========================================
+
   const tabs = [
-    { id: 'chat',       label: 'Chat',        icon: '💬' },
-    { id: 'calculator', label: 'Calculator',  icon: '🧮' },
-    { id: 'dashboard',  label: 'Analytics',   icon: '📊' },
+
+    {
+      id: 'chat',
+      label: 'Chat',
+      icon: '💬'
+    },
+
+    {
+      id: 'calculator',
+      label: 'Calculator',
+      icon: '🧮'
+    },
+
+    {
+      id: 'dashboard',
+      label: 'Analytics',
+      icon: '📊'
+    },
   ]
 
   return (
+
     <div className="dl-root">
 
-      {/* ── SIDEBAR ─────────────────────────── */}
+      {/* SIDEBAR */}
+
       <aside className="dl-sidebar">
+
+        {/* BRAND */}
+
         <div className="dl-brand">
-          <span className="dl-brand-icon">🚦</span>
+
+          <span className="dl-brand-icon">
+            🚦
+          </span>
+
           <div>
-            <div className="dl-brand-name">DriveLegal</div>
-            <div className="dl-brand-sub">AI Traffic Law</div>
+
+            <div className="dl-brand-name">
+              DriveLegal
+            </div>
+
+            <div className="dl-brand-sub">
+              AI Traffic Law
+            </div>
+
           </div>
+
         </div>
+
+        {/* NAVIGATION */}
 
         <nav className="dl-nav">
-          {tabs.map(t => (
+
+          {tabs.map((t) => (
+
             <button
               key={t.id}
-              className={`dl-nav-btn ${activeTab === t.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(t.id)}
+
+              className={`
+                dl-nav-btn
+                ${
+                  activeTab === t.id
+                    ? 'active'
+                    : ''
+                }
+              `}
+
+              onClick={() =>
+                setActiveTab(t.id)
+              }
             >
-              <span className="dl-nav-icon">{t.icon}</span>
-              <span>{t.label}</span>
+
+              <span className="dl-nav-icon">
+
+                {t.icon}
+
+              </span>
+
+              <span>
+                {t.label}
+              </span>
+
             </button>
+
           ))}
+
         </nav>
 
+        {/* LOCATION BOX */}
+
         <div className="dl-location-box">
-          <label className="dl-loc-label">📍 Your State</label>
+
+          <label className="dl-loc-label">
+
+            📍 Your State
+
+          </label>
+
+          {/* DROPDOWN */}
+
           <select
+
             value={location}
-            onChange={e => handleLocationChange(e.target.value)}
+
+            onChange={(e) =>
+              handleLocationChange(
+                e.target.value
+              )
+            }
+
             className="dl-select"
           >
-            {STATES.map(s => <option key={s}>{s}</option>)}
+
+            {STATES.map((s) => (
+
+              <option
+                key={s}
+                value={s}
+              >
+
+                {s}
+
+              </option>
+
+            ))}
+
           </select>
-          <div className={`dl-status-dot ${isOnline ? 'online' : 'offline'}`}>
-            <span className="dl-status-pulse" />
-            {isOnline ? 'Live data' : 'Offline mode'}
+
+          {/* STATUS */}
+
+          <div
+            className={`
+              dl-status-dot
+              ${
+                isOnline
+                  ? 'online'
+                  : 'offline'
+              }
+            `}
+          >
+
+            <span className="
+              dl-status-pulse
+            " />
+
+            {
+
+              isOnline
+
+                ? 'Live data'
+
+                : 'Offline mode'
+
+            }
+
           </div>
+
         </div>
+
+        {/* FOOTER STATS */}
 
         <div className="dl-sidebar-footer">
+
           <div className="dl-footer-stat">
-            <span className="dl-footer-num">4</span>
-            <span className="dl-footer-lbl">States</span>
+
+            <span className="dl-footer-num">
+              4
+            </span>
+
+            <span className="dl-footer-lbl">
+              States
+            </span>
+
           </div>
+
           <div className="dl-footer-stat">
-            <span className="dl-footer-num">48+</span>
-            <span className="dl-footer-lbl">Violations</span>
+
+            <span className="dl-footer-num">
+              48+
+            </span>
+
+            <span className="dl-footer-lbl">
+              Violations
+            </span>
+
           </div>
+
           <div className="dl-footer-stat">
-            <span className="dl-footer-num">3</span>
-            <span className="dl-footer-lbl">Countries</span>
+
+            <span className="dl-footer-num">
+              2
+            </span>
+
+            <span className="dl-footer-lbl">
+              Countries
+            </span>
+
           </div>
+
         </div>
+
       </aside>
 
-      {/* ── MAIN CONTENT ────────────────────── */}
+      {/* MAIN */}
+
       <main className="dl-main">
 
-        {/* offline banner */}
+        {/* OFFLINE BANNER */}
+
         {!isOnline && (
+
           <div className="dl-offline-bar">
-            ⚠️ Offline mode — showing cached data
-            from {localStorage.getItem('drivelegal_cache_date') || 'last session'}
+
+            ⚠️ Offline mode —
+            showing cached data from
+            {' '}
+
+            {
+
+              localStorage.getItem(
+                'drivelegal_cache_date'
+              ) || 'last session'
+
+            }
+
           </div>
+
         )}
 
-        {/* page content */}
+        {/* PAGE CONTENT */}
+
         <div className="dl-page">
-          {activeTab === 'chat'       && <ChatWindow location={location} setIsOnline={setIsOnline} />}
-          {activeTab === 'calculator' && <Calculator location={location} setIsOnline={setIsOnline} />}
-          {activeTab === 'dashboard'  && <Dashboard />}
+
+          {/* CHAT */}
+
+          {activeTab === 'chat' && (
+
+            <ChatWindow
+
+              location={location}
+
+              setLocation={
+                setLocation
+              }
+
+              setIsOnline={
+                setIsOnline
+              }
+
+            />
+
+          )}
+
+          {/* CALCULATOR */}
+
+          {activeTab === 'calculator' && (
+
+            <Calculator
+
+              location={location}
+
+              setIsOnline={
+                setIsOnline
+              }
+
+            />
+
+          )}
+
+          {/* DASHBOARD */}
+
+          {activeTab === 'dashboard' && (
+
+            <Dashboard />
+
+          )}
+
         </div>
 
       </main>
+
     </div>
   )
 }
