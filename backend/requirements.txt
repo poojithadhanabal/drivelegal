@@ -1,11 +1,5 @@
 fastapi
 uvicorn
-langchain
-langchain-openai
-openai
+httpx
 python-dotenv
 pydantic
-requests
-langchain-google-genai
-langchain-groq
-psycopg2-binary

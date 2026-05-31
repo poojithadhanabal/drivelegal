@@ -1,108 +1,102 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
+from dotenv import load_dotenv
+
 import os
 import json
 import hashlib
-from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
 router = APIRouter()
 
-# ================================
+# =========================================
 # BASE DIRECTORY
-# ================================
+# =========================================
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(__file__)
 )
 
-# ================================
+# =========================================
+# AI CONFIG
+# =========================================
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
+
+MODEL_NAME = "llama-3.1-8b-instant"
+
+# =========================================
 # CACHE
-# ================================
+# =========================================
 
 _cache = {}
 
-# ================================
+# =========================================
 # REQUEST MODEL
-# ================================
+# =========================================
 
 class ChatRequest(BaseModel):
 
     message: str
     location: str = "Tamil Nadu"
 
-# ================================
-# DATABASE SELECTOR
-# ================================
+# =========================================
+# LOAD DATABASE
+# =========================================
 
-def get_database(location):
+def load_database(location):
 
-    location_lower = location.lower()
+    location = location.lower()
 
-    if location_lower == "tamil nadu":
+    if location == "tamil nadu":
 
-        return os.path.join(
-            BASE_DIR,
-            "data/legal_database/tamilnadu_rules.json"
-        )
+        filename = "tamilnadu_rules.json"
 
-    elif location_lower == "delhi":
+    elif location == "delhi":
 
-        return os.path.join(
-            BASE_DIR,
-            "data/legal_database/delhi_rules.json"
-        )
+        filename = "delhi_rules.json"
 
-    elif location_lower == "karnataka":
+    elif location == "karnataka":
 
-        return os.path.join(
-            BASE_DIR,
-            "data/legal_database/karnataka_rules.json"
-        )
+        filename = "karnataka_rules.json"
 
-    elif location_lower == "maharashtra":
+    elif location == "maharashtra":
 
-        return os.path.join(
-            BASE_DIR,
-            "data/legal_database/maharashtra_rules.json"
-        )
+        filename = "maharashtra_rules.json"
 
-    elif location_lower in [
-        "uk",
-        "united kingdom"
-    ]:
+    elif location in ["uk", "united kingdom"]:
 
-        return os.path.join(
-            BASE_DIR,
-            "data/legal_database/uk_rules.json"
-        )
+        filename = "uk_rules.json"
 
-    return os.path.join(
+    else:
+
+        filename = "central_laws.json"
+
+    path = os.path.join(
         BASE_DIR,
-        "data/legal_database/central_laws.json"
+        "data/legal_database",
+        filename
     )
 
-# ================================
-# SEARCH ENGINE
-# ================================
-
-def find_offence(
-    user_message,
-    location="Tamil Nadu"
-):
-
-    msg = user_message.lower()
-
-    database_path = get_database(location)
-
     with open(
-        database_path,
+        path,
         "r",
         encoding="utf-8"
     ) as f:
 
-        legal_data = json.load(f)
+        return json.load(f)
+
+# =========================================
+# KEYWORD MATCH ENGINE
+# =========================================
+
+def keyword_fallback(user_message, legal_data):
+
+    msg = user_message.lower()
 
     best_match = None
     best_score = 0
@@ -117,19 +111,10 @@ def find_offence(
         ).lower()
 
         # DIRECT MATCH
-
-        if offence_name.replace(
-            " ",
-            ""
-        ) in msg.replace(
-            " ",
-            ""
-        ):
-
+        if offence_name in msg:
             score += 10
 
-        # KEYWORD MATCHES
-
+        # KEYWORD MATCH
         for keyword in offence.get(
             "keywords",
             []
@@ -137,18 +122,10 @@ def find_offence(
 
             keyword = keyword.lower()
 
-            if keyword.replace(
-                " ",
-                ""
-            ) in msg.replace(
-                " ",
-                ""
-            ):
-
+            if keyword in msg:
                 score += 5
 
-        # DESCRIPTION MATCHES
-
+        # DESCRIPTION MATCH
         description = offence.get(
             "description",
             ""
@@ -156,15 +133,10 @@ def find_offence(
 
         for word in description.split():
 
-            if (
-                len(word) > 4
-                and word in msg
-            ):
-
+            if len(word) > 4 and word in msg:
                 score += 1
 
         # BEST MATCH
-
         if score > best_score:
 
             best_score = score
@@ -172,198 +144,176 @@ def find_offence(
 
     return best_match
 
-# ================================
-# SAFETY TIPS
-# ================================
+# =========================================
+# BUILD AI CONTEXT
+# =========================================
 
-SAFETY_TIPS = {
+def build_legal_context(match, location):
 
-    "Helmet Violation":
-        "Always wear a certified helmet while riding.",
+    if not match:
+        return None
 
-    "Riding Without Helmet":
-        "Always wear a BIS-certified helmet while riding.",
+    fine = match.get("fine")
 
-    "Drunk Driving":
-        "Never drink and drive. Use a cab or designated driver.",
+    if isinstance(fine, dict):
 
-    "Driving Without Insurance":
-        "Keep valid insurance documents updated at all times.",
+        fine_text = (
+            f"First offence: "
+            f"{fine.get('first_offence')}, "
+            f"Repeat offence: "
+            f"{fine.get('repeat_offence')}"
+        )
 
-    "Triple Riding":
-        "Two-wheelers are designed for only two persons.",
+    else:
 
-    "Using Mobile While Driving":
-        "Avoid distractions while driving for safer roads.",
+        fine_text = str(fine)
 
-    "Dangerous Driving":
-        "Drive responsibly and follow traffic speed limits."
-}
+    return f"""
+Traffic Law Information
 
-# ================================
-# LEGAL ADVICE
-# ================================
+Location:
+{location}
 
-LEGAL_ADVICE = {
+Offence:
+{match.get('offence')}
 
-    "Helmet Violation":
-        "Helmet violations may lead to penalties and increased accident risk.",
+Section:
+{match.get('section')}
 
-    "Riding Without Helmet":
-        "Repeated violations may attract stricter penalties.",
+Fine:
+{fine_text}
 
-    "Drunk Driving":
-        "Serious drunk-driving offences may lead to imprisonment.",
+Severity:
+{match.get('severity')}
 
-    "Driving Without Insurance":
-        "Driving uninsured vehicles creates legal and financial risks.",
+Risk Score:
+{match.get('risk_score')}
 
-    "Triple Riding":
-        "Traffic police may seize vehicles for repeated violations.",
+Vehicle Type:
+{match.get('vehicleType')}
 
-    "Using Mobile While Driving":
-        "Mobile usage while driving increases accident risk.",
+Description:
+{match.get('description')}
 
-    "Dangerous Driving":
-        "Dangerous driving can lead to licence suspension."
-}
+Source:
+{match.get('source')}
+"""
 
-# ================================
-# AI RISK SCORES
-# ================================
+# =========================================
+# AI RESPONSE
+# =========================================
 
-RISK_SCORES = {
+def ask_ai(user_question, legal_context):
 
-    "Helmet Violation":
-        "Medium Risk",
+    if not GROQ_API_KEY:
 
-    "Riding Without Helmet":
-        "Medium Risk",
+        return (
+            "DriveLegal AI is currently unavailable "
+            "(Missing API key)."
+        )
 
-    "Triple Riding":
-        "Medium Risk",
+    headers = {
 
-    "Driving Without Insurance":
-        "High Risk",
+        "Authorization":
+            f"Bearer {GROQ_API_KEY}",
 
-    "Drunk Driving":
-        "Critical Risk",
+        "Content-Type":
+            "application/json"
+    }
 
-    "Using Mobile While Driving":
-        "High Risk",
+    prompt = f"""
+You are DriveLegal AI.
 
-    "Dangerous / Rash Driving":
-        "Critical Risk"
-}
+Explain naturally using ONLY
+the provided legal database.
 
-# ================================
-# RESPONSE FORMATTER
-# ================================
+Do NOT invent laws.
 
-def format_response(data):
+Keep response short, professional,
+and user-friendly.
 
-    if not data:
+LEGAL DATA:
+{legal_context}
 
-        return {
+USER QUESTION:
+{user_question}
+"""
 
-            "summary":
-                (
-                    "❌ Sorry, I could not find verified traffic law information.\n\n"
+    payload = {
 
-                    "Try asking about:\n"
-                    "• Helmet violation\n"
-                    "• Drunk driving\n"
-                    "• Triple riding\n"
-                    "• No insurance\n"
-                    "• Mobile while driving\n"
-                    "• Seat belt violation"
-                ),
+        "model": MODEL_NAME,
 
-            "data": None
-        }
+        "messages": [
 
-    offence_name = data.get(
-        "offence"
-    )
+            {
+                "role": "system",
+                "content":
+                    "You are an AI traffic law assistant."
+            },
 
-    response = {
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
 
-        "offence":
-            offence_name,
+        "temperature": 0.3
+    }
 
-        "section":
-            data.get("section"),
+    try:
 
-        "fine":
-            data.get("fine"),
+        response = requests.post(
 
-        "severity":
-            data.get("severity"),
+            GROQ_URL,
 
-        "vehicleType":
-            data.get("vehicleType"),
+            headers=headers,
 
-        "state":
-            data.get("state"),
+            json=payload,
 
-        "source":
-            data.get("source"),
+            timeout=30
+        )
 
-        "description":
-            data.get("description"),
+        # CHECK HTTP ERROR
+        response.raise_for_status()
 
-        "safety_tip":
-            SAFETY_TIPS.get(
-                offence_name,
-                "Follow traffic rules for safer roads."
-            ),
+        data = response.json()
 
-        "legal_advice":
-            LEGAL_ADVICE.get(
-                offence_name,
-                "Always follow Motor Vehicle Act regulations."
-            ),
+        # SAFE RESPONSE PARSING
+        ai_text = (
+            data.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content")
+        )
 
-        "risk_score":
-            RISK_SCORES.get(
-                offence_name,
-                "Unknown Risk"
+        if not ai_text:
+
+            return (
+                "AI could not generate "
+                "a proper explanation."
             )
-    }
 
-    return {
+        return ai_text
 
-        "summary":
-            (
-                f"🚦 {response['offence']}\n\n"
+    except Exception as e:
 
-                f"📘 Section: "
-                f"{response['section']}\n"
+        print("========== AI ERROR ==========")
+        print(str(e))
+        print("==============================")
 
-                f"💰 Fine: "
-                f"{response['fine']}\n"
+        return (
+             "DriveLegal AI is temporarily unavailable."
+        )
 
-                f"⚠ Severity: "
-                f"{response['severity']}\n"
-
-                f"📍 State: "
-                f"{response['state']}"
-            ),
-
-        "data":
-            response
-    }
-
-# ================================
+# =========================================
 # CHAT ENDPOINT
-# ================================
+# =========================================
 
 @router.post("/chat")
-
 async def chat(req: ChatRequest):
 
     try:
 
+        # CACHE KEY
         cache_key = hashlib.md5(
 
             f"{req.message.lower()}-{req.location}"
@@ -372,72 +322,133 @@ async def chat(req: ChatRequest):
         ).hexdigest()
 
         # RETURN CACHE
-
         if cache_key in _cache:
 
-            cached = _cache[cache_key]
+            return _cache[cache_key]
 
-            cached["cached"] = True
-
-            return cached
-
-        # SEARCH OFFENCE
-
-        offence = find_offence(
-            req.message,
+        # LOAD DATABASE
+        legal_data = load_database(
             req.location
         )
 
-        # FORMAT
-
-        formatted = format_response(
-            offence
+        # FIND MATCH
+        match = keyword_fallback(
+            req.message,
+            legal_data
         )
+
+        # NO MATCH
+        if not match:
+
+            return {
+
+                "answer":
+                    (
+                        "I couldn't find that "
+                        "violation in my database.\n\n"
+
+                        "Try asking about:\n"
+
+                        "• Helmet violation\n"
+                        "• Drunk driving\n"
+                        "• Triple riding\n"
+                        "• No insurance\n"
+                        "• Mobile while driving\n"
+                        "• Seat belt violation"
+                    ),
+
+                "data": None,
+
+                "status": "ok"
+            }
+
+        # BUILD CONTEXT
+        legal_context = build_legal_context(
+            match,
+            req.location
+        )
+
+        # AI RESPONSE
+        ai_response = ask_ai(
+            req.message,
+            legal_context
+        )
+
+        # FINE
+        fine = match.get("fine")
+
+        if isinstance(fine, dict):
+
+            fine_value = fine.get(
+                "first_offence"
+            )
+
+        else:
+
+            fine_value = fine
+
+        # STRUCTURED DATA
+        structured_data = {
+
+            "offence":
+                match.get("offence"),
+
+            "section":
+                match.get("section"),
+
+            "fine":
+                fine_value,
+
+            "severity":
+                match.get("severity"),
+
+            "risk_score":
+                match.get(
+                    "risk_score",
+                    "Medium Risk"
+                ),
+
+            "vehicleType":
+                match.get("vehicleType"),
+
+            "state":
+                match.get(
+                    "state",
+                    req.location
+                ),
+
+            "source":
+                match.get("source"),
+
+            "description":
+                match.get("description"),
+        }
 
         response = {
 
-            "answer":
-                formatted.get(
-                    "summary"
-                ),
+            "answer": ai_response,
 
-            "data":
-                formatted.get(
-                    "data"
-                ),
+            "data": structured_data,
+
+            "status": "ok",
 
             "location":
-                req.location,
-
-            "cached":
-                False,
-
-            "status":
-                "ok"
+                req.location
         }
 
         # SAVE CACHE
-
         _cache[cache_key] = response
 
         return response
 
     except Exception as e:
 
-        # OFFLINE / LOW NETWORK FALLBACK
+        print("CHAT ERROR:", str(e))
 
         return {
 
             "answer":
-                (
-                    "⚠ DriveLegal is experiencing low-network connectivity.\n\n"
+                f"Backend Error: {str(e)}",
 
-                    "Previously loaded legal resources may still remain accessible."
-                ),
-
-            "data": None,
-
-            "offline_mode": True,
-
-            "status": "fallback"
+            "status": "error"
         }

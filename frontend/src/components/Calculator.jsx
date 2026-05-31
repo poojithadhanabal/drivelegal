@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const API = import.meta.env.VITE_API_URL || 'https://drivelegal-backend.onrender.com'
+const API = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
 
 const VIOLATIONS = [
   { name: 'Helmet Violation',      icon: '🪖', severity: 'high'   },
