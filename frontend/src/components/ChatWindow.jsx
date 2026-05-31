@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 const API =
   import.meta.env.VITE_API_URL ||
-  'http://localhost:8000/api'
+  'https://drivelegal-backend.onrender.com/api'
 
 const SUGGESTIONS = [
   'Helmet violation fine in Tamil Nadu',
