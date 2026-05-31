@@ -5,346 +5,146 @@ import Calculator from './components/Calculator'
 import Dashboard from './components/Dashboard'
 
 // ✅ ONLY SUPPORTED STATES
-
 const STATES = [
-
   'Central',
-
   'Tamil Nadu',
-
   'Delhi',
-
   'Karnataka',
-
   'Maharashtra',
-
   'UK',
 ]
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('chat')
 
-  const [activeTab, setActiveTab] =
-    useState('chat')
+  const [location, setLocation] = useState(
+    localStorage.getItem('drivelegal_location') || 'Central'
+  )
 
-  const [location, setLocation] =
-    useState(
-
-      localStorage.getItem(
-        'drivelegal_location'
-      ) || 'Central'
-
-    )
-
-  const [isOnline, setIsOnline] =
-    useState(navigator.onLine)
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
 
   // ========================================
   // LOCATION CHANGE
   // ========================================
-
   const handleLocationChange = (val) => {
-
     setLocation(val)
-
+    localStorage.setItem('drivelegal_location', val)
     localStorage.setItem(
-      'drivelegal_location',
-      val
-    )
-
-    localStorage.setItem(
-
       'drivelegal_cache_date',
-
-      new Date()
-        .toLocaleDateString()
+      new Date().toLocaleDateString()
     )
   }
 
   // ========================================
   // SIDEBAR TABS
   // ========================================
-
   const tabs = [
-
-    {
-      id: 'chat',
-      label: 'Chat',
-      icon: '💬'
-    },
-
-    {
-      id: 'calculator',
-      label: 'Calculator',
-      icon: '🧮'
-    },
-
-    {
-      id: 'dashboard',
-      label: 'Analytics',
-      icon: '📊'
-    },
+    { id: 'chat',       label: 'Chat',      icon: '💬' },
+    { id: 'calculator', label: 'Calculator', icon: '🧮' },
+    { id: 'dashboard',  label: 'Analytics',  icon: '📊' },
   ]
 
   return (
-
     <div className="dl-root">
 
-      {/* SIDEBAR */}
-
+      {/* ── SIDEBAR ── */}
       <aside className="dl-sidebar">
 
-        {/* BRAND */}
-
+        {/* Brand */}
         <div className="dl-brand">
-
-          <span className="dl-brand-icon">
-            🚦
-          </span>
-
+          <span className="dl-brand-icon">🚦</span>
           <div>
-
-            <div className="dl-brand-name">
-              DriveLegal
-            </div>
-
-            <div className="dl-brand-sub">
-              AI Traffic Law
-            </div>
-
+            <div className="dl-brand-name">DriveLegal</div>
+            <div className="dl-brand-sub">AI Traffic Law</div>
           </div>
-
         </div>
 
-        {/* NAVIGATION */}
-
+        {/* Navigation */}
         <nav className="dl-nav">
-
           {tabs.map((t) => (
-
             <button
               key={t.id}
-
-              className={`
-                dl-nav-btn
-                ${
-                  activeTab === t.id
-                    ? 'active'
-                    : ''
-                }
-              `}
-
-              onClick={() =>
-                setActiveTab(t.id)
-              }
+              className={`dl-nav-btn ${activeTab === t.id ? 'active' : ''}`}
+              onClick={() => setActiveTab(t.id)}
             >
-
-              <span className="dl-nav-icon">
-
-                {t.icon}
-
-              </span>
-
-              <span>
-                {t.label}
-              </span>
-
+              <span className="dl-nav-icon">{t.icon}</span>
+              <span>{t.label}</span>
             </button>
-
           ))}
-
         </nav>
 
-        {/* LOCATION BOX */}
-
+        {/* Location box */}
         <div className="dl-location-box">
-
-          <label className="dl-loc-label">
-
-            📍 Your State
-
-          </label>
-
-          {/* DROPDOWN */}
+          <label className="dl-loc-label">📍 Your State</label>
 
           <select
-
             value={location}
-
-            onChange={(e) =>
-              handleLocationChange(
-                e.target.value
-              )
-            }
-
+            onChange={(e) => handleLocationChange(e.target.value)}
             className="dl-select"
           >
-
             {STATES.map((s) => (
-
-              <option
-                key={s}
-                value={s}
-              >
-
-                {s}
-
-              </option>
-
+              <option key={s} value={s}>{s}</option>
             ))}
-
           </select>
 
-          {/* STATUS */}
-
-          <div
-            className={`
-              dl-status-dot
-              ${
-                isOnline
-                  ? 'online'
-                  : 'offline'
-              }
-            `}
-          >
-
-            <span className="
-              dl-status-pulse
-            " />
-
-            {
-
-              isOnline
-
-                ? 'Live data'
-
-                : 'Offline mode'
-
-            }
-
+          <div className={`dl-status-dot ${isOnline ? 'online' : 'offline'}`}>
+            <span className="dl-status-pulse" />
+            {isOnline ? 'Live data' : 'Offline mode'}
           </div>
-
         </div>
 
-        {/* FOOTER STATS */}
-
+        {/* Footer stats */}
         <div className="dl-sidebar-footer">
-
           <div className="dl-footer-stat">
-
-            <span className="dl-footer-num">
-              4
-            </span>
-
-            <span className="dl-footer-lbl">
-              States
-            </span>
-
+            <span className="dl-footer-num">4</span>
+            <span className="dl-footer-lbl">States</span>
           </div>
-
           <div className="dl-footer-stat">
-
-            <span className="dl-footer-num">
-              48+
-            </span>
-
-            <span className="dl-footer-lbl">
-              Violations
-            </span>
-
+            <span className="dl-footer-num">48+</span>
+            <span className="dl-footer-lbl">Violations</span>
           </div>
-
           <div className="dl-footer-stat">
-
-            <span className="dl-footer-num">
-              2
-            </span>
-
-            <span className="dl-footer-lbl">
-              Countries
-            </span>
-
+            <span className="dl-footer-num">2</span>
+            <span className="dl-footer-lbl">Countries</span>
           </div>
-
         </div>
 
       </aside>
 
-      {/* MAIN */}
-
+      {/* ── MAIN ── */}
       <main className="dl-main">
 
-        {/* OFFLINE BANNER */}
-
+        {/* Offline banner */}
         {!isOnline && (
-
           <div className="dl-offline-bar">
-
-            ⚠️ Offline mode —
-            showing cached data from
-            {' '}
-
-            {
-
-              localStorage.getItem(
-                'drivelegal_cache_date'
-              ) || 'last session'
-
-            }
-
+            ⚠️ Offline mode — showing cached data from{' '}
+            {localStorage.getItem('drivelegal_cache_date') || 'last session'}
           </div>
-
         )}
 
-        {/* PAGE CONTENT */}
-
+        {/* Page content */}
         <div className="dl-page">
 
-          {/* CHAT */}
-
           {activeTab === 'chat' && (
-
             <ChatWindow
-
               location={location}
-
-              setLocation={
-                setLocation
-              }
-
-              setIsOnline={
-                setIsOnline
-              }
-
+              setLocation={setLocation}
+              setIsOnline={setIsOnline}
             />
-
           )}
-
-          {/* CALCULATOR */}
 
           {activeTab === 'calculator' && (
-
             <Calculator
-
               location={location}
-
-              setIsOnline={
-                setIsOnline
-              }
-
+              setIsOnline={setIsOnline}
             />
-
           )}
 
-          {/* DASHBOARD */}
-
           {activeTab === 'dashboard' && (
-
             <Dashboard />
-
           )}
 
         </div>
-
       </main>
 
     </div>
